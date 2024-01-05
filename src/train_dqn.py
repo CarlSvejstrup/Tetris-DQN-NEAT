@@ -1,5 +1,5 @@
-from engine import Tetris
-from agent import Agent
+from tetris_engine import Tetris
+from agent_dqn import Agent
 import time
 
 # Initialize tetris enviroment
