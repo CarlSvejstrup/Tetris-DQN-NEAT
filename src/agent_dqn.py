@@ -20,8 +20,8 @@ class Agent:
             self.epsilon - self.epsilon_min
         ) / self.epsilon_end_episode
 
-        self.batch_size = 512
-        self.replay_start = 3000
+        self.batch_size = 150
+        self.replay_start = 300
         self.epochs = 1
 
         self.model = self.build_model()
@@ -29,7 +29,12 @@ class Agent:
     def build_model(self):
         model = keras.Sequential(
             [
-                Dense(64, input_dim=self.state_size,activation="relu", kernel_initializer="glorot_uniform",),
+                Dense(
+                    64,
+                    input_dim=self.state_size,
+                    activation="relu",
+                    kernel_initializer="glorot_uniform",
+                ),
                 Dense(64, activation="relu", kernel_initializer="glorot_uniform"),
                 Dense(32, activation="relu", kernel_initializer="glorot_uniform"),
                 Dense(1, activation="linear"),
@@ -50,8 +55,6 @@ class Agent:
             return random.choice(list(states))
         else:
             for state in states:
-                print(state)
-                print(np.reshape(state, [1, self.state_size]))
                 value = self.model.predict(np.reshape(state, [1, self.state_size]))
                 if value > max_value:
                     max_value = value
@@ -60,6 +63,7 @@ class Agent:
         return best
 
     def replay(self):
+        # print(f"memorysize: {len(self.memory)}")
         if len(self.memory) > self.replay_start:
             batch = random.sample(self.memory, self.batch_size)
 
@@ -84,5 +88,7 @@ class Agent:
                 np.array(y),
                 batch_size=self.batch_size,
                 epochs=self.epochs,
-                verbose=0,
+                verbose=2,
             )
+
+            self.memory = deque(maxlen=30000)
