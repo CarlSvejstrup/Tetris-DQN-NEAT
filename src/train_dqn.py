@@ -30,9 +30,24 @@ current_max = 0
 
 log_folder = "run3"
 log_dir = "training_logs/" + log_folder
-writer = SummaryWriter(
-    log_dir=log_dir, comment="increase in episode length and learning rate 0.001"
-)
+writer = SummaryWriter(log_dir=log_dir)
+
+
+def logging():
+    writer.add_scalar("Total Reward", total_reward, episode)
+    writer.add_scalar("Epsilon", agent.epsilon_list[-1], episode)
+
+    if agent.losses:
+        writer.add_scalar("Loss", agent.losses[-1], episode)
+    # Log metrics to TensorBoard
+
+
+writer.add_text("Max episode", str(max_episode))
+writer.add_text("Learningrate", str(agent.learning_rate))
+writer.add_text("Replaystart", str(agent.replay_start))
+writer.add_text("Batchsize", str(agent.batch_size))
+writer.add_text("Discount value", str(agent.discount))
+writer.add_text("Replay buffer size", str(agent.memory_size))
 
 for episode in range(max_episode):
     current_state = env.reset()
@@ -43,14 +58,13 @@ for episode in range(max_episode):
     print("Running episode " + str(episode))
 
     while not done and steps < max_steps:
-        
         # Key controls for the training session
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
                     env.toggle_render()  # Toggle render state with 'r'
                 if event.key == pygame.K_q:
-                    quit() # quit game with 'q'
+                    quit()  # quit game with 'q'
 
         if env.render_enabled:
             env.render(total_reward)
@@ -82,15 +96,10 @@ for episode in range(max_episode):
 
         steps += 1
 
+        logging()
+
     episodes.append(episode)
     rewards.append(total_reward)
-
-    # Log metrics to TensorBoard
-    writer.add_scalar("Total Reward", total_reward, episode)
-    writer.add_scalar("Epsilon", agent.epsilon_list[-1], episode)
-
-    if agent.losses:
-        writer.add_scalar("Loss", agent.losses[-1], episode)
 
     agent.replay()
 

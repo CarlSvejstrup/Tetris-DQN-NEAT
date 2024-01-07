@@ -29,7 +29,8 @@ class Agent:
         self.state_size = state_size
         self.losses = []
         self.epsilon_list = []
-        self.memory = deque(maxlen=30000)
+        self.memory_size = 30000
+        self.memory = deque(maxlen=self.memory_size)
         self.discount = 0.98
         self.epsilon = 1.0
         self.epsilon_min = 0.001
