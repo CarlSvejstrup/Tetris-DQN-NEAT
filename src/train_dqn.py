@@ -6,20 +6,19 @@ import keyboard
 import pygame
 import csv
 import os
+from torch.utils.tensorboard import SummaryWriter
 
 
 ## TODO
 # Pull training data to CSV for visualization and debug high loss/ high reward problem
 #
-
-
 pygame.init()
 
 # Initialize tetris environment
 env = Tetris(10, 20)
 
 # Initialize training variables
-max_episode = 100
+max_episode = 4000
 max_steps = 25000
 
 agent = Agent(env.state_size)
@@ -28,6 +27,12 @@ episodes = []
 rewards = []
 
 current_max = 0
+
+log_folder = "run3"
+log_dir = "training_logs/" + log_folder
+writer = SummaryWriter(
+    log_dir=log_dir, comment="increase in episode length and learning rate 0.001"
+)
 
 for episode in range(max_episode):
     current_state = env.reset()
@@ -38,11 +43,14 @@ for episode in range(max_episode):
     print("Running episode " + str(episode))
 
     while not done and steps < max_steps:
-        # Rendering game. press r to toggle render 'on' and 'off'
+        
+        # Key controls for the training session
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
-                    env.toggle_render()  # Toggle render state
+                    env.toggle_render()  # Toggle render state with 'r'
+                if event.key == pygame.K_q:
+                    quit() # quit game with 'q'
 
         if env.render_enabled:
             env.render(total_reward)
@@ -74,34 +82,30 @@ for episode in range(max_episode):
 
         steps += 1
 
+    episodes.append(episode)
+    rewards.append(total_reward)
+
+    # Log metrics to TensorBoard
+    writer.add_scalar("Total Reward", total_reward, episode)
+    writer.add_scalar("Epsilon", agent.epsilon_list[-1], episode)
+
+    if agent.losses:
+        writer.add_scalar("Loss", agent.losses[-1], episode)
+
+    agent.replay()
+
+    # if total_reward < 25000:
+    #     agent.replay()
+    # else:
+    #     pass
+
+    if agent.epsilon > agent.epsilon_min:
+        agent.epsilon -= agent.epsilon_decay
+
     print("Total reward: " + str(total_reward))
 
     if agent.losses:
         print(f"loss: {agent.losses[-1]}")
     print(f"epsilon: {agent.epsilon_list[-1]}")
 
-    episodes.append(episode)
-    rewards.append(total_reward)
-
-    agent.replay()
-
-    if agent.epsilon > agent.epsilon_min:
-        agent.epsilon -= agent.epsilon_decay
-
-
-data = list(zip(episodes, rewards, agent.epsilon_list, agent.losses))
-
-csv_file_path = os.path.join(
-    os.path.dirname(__file__), "..", "training_stats", "training_1.csv"
-)
-
-with open(csv_file_path, "w", newline="") as csv_file:
-    csv_writer = csv.writer(csv_file)
-    csv_writer.writerow(["episode", "reward", "epsilon", "loss"])
-    csv_writer.writerow(data)
-
-plt.plot(episodes, rewards)
-plt.title("Learning Curve")
-plt.xlabel("Episode")
-plt.ylabel("Total Reward")
-plt.show()
+writer.close()
