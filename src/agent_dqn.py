@@ -29,23 +29,21 @@ class Agent:
         self.state_size = state_size
         self.losses = []
         self.epsilon_list = []
-        # self.memory = []
-        # self.memory_maxlen = 30000
         self.memory = deque(maxlen=30000)
-        self.discount = 0.95
+        self.discount = 0.98
         self.epsilon = 1.0
         self.epsilon_min = 0.001
-        self.epsilon_end_episode = 2000
+        self.epsilon_end_episode = 3000
         self.epsilon_decay = (
             self.epsilon - self.epsilon_min
         ) / self.epsilon_end_episode
 
-        self.batch_size = 700
-        self.replay_start = 1000
-        self.epochs = 1
+        self.batch_size = 500
+        self.replay_start = 3000
+        self.learning_rate = 0.001
 
         self.model = QNetwork(state_size)
-        self.optimizer = optim.Adam(self.model.parameters(), lr=0.001)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
 
     def add_to_memory(self, current_state, next_state, reward, done):
         self.memory.append([current_state, next_state, reward, done])
@@ -101,6 +99,6 @@ class Agent:
             self.optimizer.zero_grad()
             output = self.model(x)
             loss = nn.MSELoss()(output, y)
-            self.losses.append(loss.item())
+            self.losses.append(loss)
             loss.backward()
             self.optimizer.step()
