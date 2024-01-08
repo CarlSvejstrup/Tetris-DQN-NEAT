@@ -43,7 +43,6 @@ def logging():
         writer.add_scalar("Loss", agent.losses[-1], episode)
     # Log metrics to TensorBoard
 
-
 writer.add_text("Max episode", str(max_episode))
 writer.add_text("Learningrate", str(agent.learning_rate))
 writer.add_text("Replaystart", str(agent.replay_start))
@@ -112,18 +111,10 @@ for episode in range(max_episode):
 
     agent.replay()
 
-    # else:
-    #     pass
-
     if agent.epsilon > agent.epsilon_min:
         agent.epsilon -= agent.epsilon_decay
 
     print("Total reward: " + str(total_reward))
 
-    if agent.losses:
-        print(f"loss: {agent.losses[-1]}")
-    print(f"epsilon: {agent.epsilon_list[-1]}")
-
 writer.close()
-
 agent.model_save(path=f"DQN/models/{str(largets_reward)}.pt")
