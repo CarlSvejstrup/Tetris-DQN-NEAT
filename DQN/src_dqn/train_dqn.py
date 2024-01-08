@@ -18,7 +18,7 @@ pygame.init()
 env = Tetris(10, 20)
 
 # Initialize training variables
-max_episode = 1000
+max_episode = 10
 max_steps = 25000
 max_reward = 30
 
@@ -117,4 +117,4 @@ for episode in range(max_episode):
     print("Total reward: " + str(total_reward))
 
 writer.close()
-agent.model_save(path=f"DQN/models/{str(largets_reward)}.pt")
+print(largets_reward)

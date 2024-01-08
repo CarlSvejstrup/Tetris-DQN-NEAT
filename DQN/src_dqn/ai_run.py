@@ -17,12 +17,18 @@ model = QNetwork(env.state_size)
 model.load_state_dict(torch.load(model_path))
 model.eval()
 
-max_episodes = 100
+max_episodes = 1
 episodes = []
 rewards = []
 current_max = 0
 log_evaluation = True
 framerate = 1
+
+for name, param in model.named_parameters():
+    print(f"Parameter name: {name}")
+    print(f"Parameter shape: {param.shape}")
+    print(f"Parameter values: {param}")
+    print("\n")
 
 if log_evaluation:
     log_folder = "run1"
