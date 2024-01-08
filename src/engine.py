@@ -44,7 +44,7 @@ class Tetris:
     def __init__(self, width, height):
         self.width = width
         self.height = height
-        self.board = np.zeros(shape=(width, height), dtype=np.float)
+        self.board = np.zeros(shape=(width, height), dtype=np.float64)
 
         # State size (Clearede lines, bumpiness, holes, height)
         self.state_size = 4
@@ -168,7 +168,7 @@ class Tetris:
             bumpiness += abs(columns_height[i] - columns_height[i-1])
 
         return bumpiness, sum(columns_height)
-
+    
     def get_holes(self, board):
         holes = 0
 
@@ -189,7 +189,7 @@ class Tetris:
 
         # Getting bumpiness / sum of difference between each adjacent column
         bumpiness, height = self.get_bumpiness_height(board)
-
+        
         return np.array([cleared_lines, holes, bumpiness, height])
 
 

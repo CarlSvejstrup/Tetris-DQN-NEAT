@@ -3,7 +3,7 @@ Basic applications of Deep Reinforcement Learning for playing Tetris
 
 ![](https://github.com/andreanlay/tetris-ai-deep-reinforcement-learning/blob/master/demo/Tetris-DQN-Demo.gif)
 
-Full video [link](https://www.youtube.com/watch?v=Sppq_rtr9mg)
+Full video [link](https://www.youtube.com/watch?v=Sppq _rtr9mg)
 
 ### Deep Q Network Architecture
 ![](https://github.com/andreanlay/tetris-ai-deep-reinforcement-learning/blob/master/diagram.png)
