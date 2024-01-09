@@ -145,4 +145,4 @@ for episode in range(max_episode):
 # Close tensorboard
 writer.close()
 
-print(high_score)
+print(highscore)
