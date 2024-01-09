@@ -6,8 +6,7 @@ from torch.utils.tensorboard import SummaryWriter
 import torch
 
 
-## TODO
-# Max_reward model save
+## TODOr
 # Score function (Change)
 # Server setup
 
@@ -18,9 +17,9 @@ pygame.init()
 env = Tetris(10, 20)
 
 # Initialize training variables
-max_episode = 10
-max_steps = 25000
-max_reward = 30
+max_episode = 100000
+max_steps = 250000
+max_reward = 500000
 
 agent = Agent(env.state_size)
 
@@ -30,7 +29,7 @@ rewards = []
 current_max = 0
 largets_reward = 0
 
-log_folder = "run5"
+log_folder = "run7"
 log_dir = "./DQN/training_logs/" + log_folder
 writer = SummaryWriter(log_dir=log_dir)
 
@@ -42,6 +41,7 @@ def logging():
     if agent.losses:
         writer.add_scalar("Loss", agent.losses[-1], episode)
     # Log metrics to TensorBoard
+
 
 writer.add_text("Max episode", str(max_episode))
 writer.add_text("Learningrate", str(agent.learning_rate))
@@ -102,11 +102,11 @@ for episode in range(max_episode):
         largets_reward = total_reward
 
     logging()
-    
+
     episodes.append(episode)
     rewards.append(total_reward)
 
-    if total_reward > max_reward:
+    if total_reward > max_reward and total_reward > largets_reward:
         agent.model_save(path=f"DQN/models/{str(largets_reward)}.pt")
 
     agent.replay()

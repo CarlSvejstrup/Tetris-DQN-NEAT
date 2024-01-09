@@ -31,17 +31,17 @@ class Agent:
         self.epsilon_list = []
         self.memory_size = 30000
         self.memory = deque(maxlen=self.memory_size)
-        self.discount = 0.97
-        self.epsilon = 1
+        self.discount = 0.99
+        self.epsilon = 1.0
         self.epsilon_min = 0.0005
-        self.epsilon_end_episode = 4000
+        self.epsilon_end_episode = 3000
         self.epsilon_decay = (
             self.epsilon - self.epsilon_min
         ) / self.epsilon_end_episode
 
-        self.batch_size = 500
+        self.batch_size = 516
         self.replay_start = 3000
-        self.learning_rate = 0.001
+        self.learning_rate = 0.0001
 
         self.model = QNetwork(state_size)
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
@@ -74,7 +74,10 @@ class Agent:
         if len(self.memory) > self.replay_start:
             batch = random.sample(self.memory, self.batch_size)
 
-            next_states = torch.tensor([s[1] for s in batch], dtype=torch.float32)
+            next_states = torch.tensor(
+                np.array([s[1] for s in batch]), dtype=torch.float32
+            )
+
             # print(f'next_states: {next_states}')
             next_qvalue = self.model(next_states).detach().numpy()
             # print(f'next q_values: {next_qvalue}')

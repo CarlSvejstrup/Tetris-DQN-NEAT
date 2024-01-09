@@ -1,4 +1,4 @@
 Python
-Tensorflow
-Keras
-OpenCV
+Torch
+numpy
+Tensorboard

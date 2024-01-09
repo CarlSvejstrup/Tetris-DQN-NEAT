@@ -115,6 +115,22 @@ class Tetris:
 
         return valid_action_sum
 
+    def reward_function(self):
+        cleared_lines = self._clear_lines()
+        step_reward = cleared_lines**3 * self.width + 1
+
+        # elif cleared_lines == 1:
+        #     return 40 + 1
+        # elif cleared_lines == 2:
+        #     return 100 + 1
+        # elif cleared_lines == 3:
+        #     return 300 + 1
+        # elif cleared_lines == 4:
+        #     return 1200 + 1
+        # return 0 
+
+        return step_reward
+
     def step(self, action):
         pos = [action[0], 0]
 
@@ -128,12 +144,13 @@ class Tetris:
         done = False
 
         self._set_piece(True)
-        cleared_lines = self._clear_lines()
-        reward += cleared_lines**2 * self.width + 1
+        # cleared_lines = self._clear_lines()
+        step_reward = self.reward_function()
+        reward += step_reward
         if np.any(self.board[:, 0]):
             self.reset()
             done = True
-            reward -= 5
+            reward -= 25
         else:
             self._new_piece()
 

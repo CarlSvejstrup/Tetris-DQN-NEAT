@@ -22,18 +22,13 @@ episodes = []
 rewards = []
 current_max = 0
 log_evaluation = True
-framerate = 1
-
-for name, param in model.named_parameters():
-    print(f"Parameter name: {name}")
-    print(f"Parameter shape: {param.shape}")
-    print(f"Parameter values: {param}")
-    print("\n")
+framerate = 500
 
 if log_evaluation:
     log_folder = "run1"
     log_dir = "evaluation/" + log_folder
     writer = SummaryWriter(log_dir=log_dir)
+
 
 def logging():
     writer.add_scalar("Total Reward", total_reward, episode)
