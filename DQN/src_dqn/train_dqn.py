@@ -5,6 +5,11 @@ import pygame
 from torch.utils.tensorboard import SummaryWriter
 
 
+## BUG
+# Placement of new piece with hold
+## Mixes up game board
+
+
 ## TODO
 # Implement hold function
 # Mulitprossesing next_states
@@ -80,13 +85,16 @@ for episode in range(max_episode):
                 if event.key == pygame.K_q:
                     agent.model_save(path=f"DQN/models/{str(highscore)}.pt")
                     quit()  # quit game with 'q'
-
         # Render game
         if env.render_enabled:
-            env.render(total_reward)
+            env.render(total_reward, framerate=10)
 
         # Calcutate next states
+        # if steps == 0 or env.held_shape == None:
+        #    env.hold_shape()
+
         next_states = env.get_next_states()
+        # print(next_states)
 
         # If the dictionary is empty, meaning the game is over
         if not next_states:
@@ -103,6 +111,11 @@ for episode in range(max_episode):
             if (best_state == state).all():
                 best_action = action
                 break
+
+        # print(best_action)
+        #if best_action[2]:
+        #    env.shape = env.held_shape
+        #    env.held_shape = None
 
         reward, done = env.step(best_action)
         total_reward += reward

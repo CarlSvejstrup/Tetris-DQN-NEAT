@@ -67,6 +67,10 @@ class Tetris:
         self.anchor = None
         self.shape = None
 
+        # Holding a piece
+        self.held_shape = None
+        self.held_anchor = None
+
         # Used for generating shapes
         self._shape_counts = [0] * len(shapes)
 
@@ -226,11 +230,69 @@ class Tetris:
         return np.array([cleared_lines, holes, bumpiness, height])
 
     def get_next_states(self):
+        old_shape = self.shape
+        old_anchor = self.anchor
+        # old_held_anchor = self.shape.anchor  # Store the original held shape
+        held = False
+
+        states = {}
+        # Loop to try each possibility for the current shape
+        for rotation in range(4):
+            max_x = int(max([s[0] for s in self.shape]))
+            min_x = int(min([s[0] for s in self.shape]))
+
+            for x in range(abs(min_x), self.width - max_x):
+                # Try current position
+                pos = [x, 0]
+                while not is_occupied(self.shape, pos, self.board):
+                    pos[1] += 1
+                pos[1] -= 1
+
+                self.anchor = pos
+                self._set_piece(True)
+                states[(x, rotation, held)] = self.get_current_state(self.board[:])
+                self._set_piece(False)
+                self.anchor = old_anchor
+
+            self.shape = rotated(self.shape)
+
+        # Reset the current shape to its original state
+        self.shape = old_shape
+        self.anchor = old_anchor
+
+        # # # Loop to try each possibility for the held shape
+        # held = True
+        # for rotation in range(4):
+        #     max_x = int(max([s[0] for s in self.held_shape]))
+        #     min_x = int(min([s[0] for s in self.held_shape]))
+
+        #     for x in range(abs(min_x), self.width - max_x):
+        #         # Try current position
+        #         pos = [x, 0]
+        #         while not is_occupied(self.held_shape, pos, self.board):
+        #             pos[1] += 1
+        #         pos[1] -= 1
+
+        #         self.anchor = pos
+        #         self._set_piece(True)
+        #         states[(x, rotation, held)] = self.get_current_state(self.board[:])
+        #         self._set_piece(False)
+        #         self.anchor = old_anchor
+
+        #     self.held_shape = rotated(self.held_shape)
+
+        # # Reset the held shape to its original state
+        # self.held_shape = old_held_shape
+
+        return states
+
+    def get_next_states1(self):
         """To get all possible state from current shape"""
         old_shape = self.shape
         old_anchor = self.anchor
-        states = {}
+        held = False
 
+        states = {}
         # Loop to try each posibilities
         for rotation in range(4):
             max_x = int(max([s[0] for s in self.shape]))
@@ -245,14 +307,42 @@ class Tetris:
 
                 self.anchor = pos
                 self._set_piece(True)
-                states[(x, rotation)] = self.get_current_state(self.board[:])
+                states[(x, rotation, held)] = self.get_current_state(self.board[:])
                 self._set_piece(False)
                 self.anchor = old_anchor
 
             self.shape = rotated(self.shape)
+
+        held = True
+
+        for rotation in range(4):
+            max_x = int(max([s[0] for s in self.held_shape]))
+            min_x = int(min([s[0] for s in self.held_shape]))
+
+            for x in range(abs(min_x), self.width - max_x):
+                # Try current position
+                pos = [x, 0]
+                while not is_occupied(self.held_shape, pos, self.board):
+                    pos[1] += 1
+                pos[1] -= 1
+
+                self.anchor = pos
+                self._set_piece(True)
+                states[(x, rotation, held)] = self.get_current_state(self.board[:])
+                self._set_piece(False)
+                self.anchor = old_anchor
+
+            self.held_shape = rotated(self.held_shape)
         return states
 
-    # def hold_piece(self):
+    def hold_shape(self):
+        self.held_shape = self.shape
+
+    def reverse_shape(self, shape):
+        if self.held_shape:
+            reverse_shapes = {tuple(v): k for k, v in shapes.items()}
+            held_shape_letter = reverse_shapes[tuple(shape)]
+            return held_shape_letter
 
     def toggle_render(self):
         self.render_enabled = not self.render_enabled
@@ -276,11 +366,12 @@ class Tetris:
             img[[i * 25 for i in range(self.height)], :, :] = 0
             img[:, [i * 25 for i in range(self.width)], :] = 0
 
-            # Add extra spaces on the top to display game score
-            extra_spaces = np.zeros((2 * 25, self.width * 25, 3))
+            # Add extra spaces on the top to display game score and holding piece
+            extra_spaces = np.zeros((5 * 25, self.width * 25, 3))
+
             cv.putText(
                 extra_spaces,
-                "Score: " + str(score) + " " + "Hold: " + "test",
+                "Score: " + str(score),
                 (15, 35),
                 cv.FONT_HERSHEY_SIMPLEX,
                 1,
@@ -289,11 +380,38 @@ class Tetris:
                 cv.LINE_AA,
             )
 
+            # Convert to shape letter
+            held_shape_letter = self.reverse_shape(self.held_shape)
+
+            # Checks if there is a held_shape
+            if self.held_shape:
+                cv.putText(
+                    extra_spaces,
+                    "Hold: " + held_shape_letter,
+                    (15, 80),
+                    cv.FONT_HERSHEY_SIMPLEX,
+                    1,
+                    white,
+                    2,
+                    cv.LINE_AA,
+                )
+            else:
+                cv.putText(
+                    extra_spaces,
+                    "Hold: None",
+                    (15, 80),
+                    cv.FONT_HERSHEY_SIMPLEX,
+                    1,
+                    white,
+                    2,
+                    cv.LINE_AA,
+                )
+
             # Add extra spaces to the board image
             img = np.concatenate((extra_spaces, img), axis=0)
 
-            # Draw horizontal line to separate board and extra space area
-            img[50, :, :] = white
+            # Draw horizontal lines to separate board and extra space area
+            img[90, :, :] = white
 
             cv.imshow("DQN Tetris", img)
             cv.waitKey(framerate)

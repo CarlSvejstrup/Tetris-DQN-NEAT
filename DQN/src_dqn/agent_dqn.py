@@ -68,6 +68,7 @@ class Agent:
 
         if use_epsilon and random.random() <= self.epsilon:
             return random.choice(list(states))
+
         else:
             for state in states:
                 state_tensor = torch.tensor(

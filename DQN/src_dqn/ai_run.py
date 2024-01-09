@@ -48,8 +48,7 @@ for episode in range(max_episodes):
                     quit()
 
         env.render(total_reward, framerate)
-
-        next_states = env.get_next_states()
+        next_states = env.get_next_states(env.shape)
 
         # If the dictionary is empty, meaning the game is over
         if not next_states:
