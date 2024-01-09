@@ -25,23 +25,34 @@ class QNetwork(nn.Module):
 
 
 class Agent:
-    def __init__(self, state_size):
+    def __init__(
+        self,
+        state_size,
+        memory_size=100000,
+        discount=0.99,
+        epsilon_min=0.1,
+        epsilon_end_episode=3000,
+        batch_size=516,
+        episodes_per_update=5,
+        replay_start=3000,
+        learning_rate=0.0001,
+    ):
         self.state_size = state_size
         self.losses = []
         self.epsilon_list = []
-        self.memory_size = 30000
+        self.memory_size = memory_size
         self.memory = deque(maxlen=self.memory_size)
-        self.discount = 0.99
+        self.discount = discount
         self.epsilon = 1.0
-        self.epsilon_min = 0.0005
-        self.epsilon_end_episode = 3000
+        self.epsilon_min = epsilon_min
+        self.epsilon_end_episode = epsilon_end_episode
         self.epsilon_decay = (
             self.epsilon - self.epsilon_min
         ) / self.epsilon_end_episode
-
-        self.batch_size = 516
-        self.replay_start = 3000
-        self.learning_rate = 0.0001
+        self.batch_size = batch_size
+        self.episodes_per_update = episodes_per_update
+        self.replay_start = replay_start
+        self.learning_rate = learning_rate
 
         self.model = QNetwork(state_size)
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
@@ -69,9 +80,11 @@ class Agent:
 
         return best
 
-    def replay(self):
-        print(len(self.memory))
-        if len(self.memory) > self.replay_start:
+    def replay(self, episode):
+        if (
+            len(self.memory) > self.replay_start
+            and episode % self.episodes_per_update == 0
+        ):
             batch = random.sample(self.memory, self.batch_size)
 
             next_states = torch.tensor(

@@ -1,6 +1,8 @@
 import numpy as np
 import cv2 as cv
 import random
+import concurrent.futures
+import multiprocessing
 
 shapes = {
     "T": [(0, 0), (-1, 0), (1, 0), (0, -1)],
@@ -41,10 +43,12 @@ def soft_drop(shape, anchor, board):
 
 
 def hard_drop(shape, anchor, board):
+    soft_count = 0
     while True:
         _, anchor_new = soft_drop(shape, anchor, board)
         if anchor_new == anchor:
-            return shape, anchor_new
+            return shape, anchor_new, soft_count
+        soft_count += 1
         anchor = anchor_new
 
 
@@ -117,19 +121,17 @@ class Tetris:
 
     def reward_function(self):
         cleared_lines = self._clear_lines()
-        step_reward = cleared_lines**3 * self.width + 1
+        # step_reward = cleared_lines**3 * self.width + self.soft_count
 
-        # elif cleared_lines == 1:
-        #     return 40 + 1
-        # elif cleared_lines == 2:
-        #     return 100 + 1
-        # elif cleared_lines == 3:
-        #     return 300 + 1
-        # elif cleared_lines == 4:
-        #     return 1200 + 1
-        # return 0 
-
-        return step_reward
+        if cleared_lines == 1:
+            return 40 + self.soft_count
+        elif cleared_lines == 2:
+            return 100 + self.soft_count
+        elif cleared_lines == 3:
+            return 300 + self.soft_count
+        elif cleared_lines == 4:
+            return 1200 + self.soft_count
+        return self.soft_count
 
     def step(self, action):
         pos = [action[0], 0]
@@ -138,7 +140,9 @@ class Tetris:
         for rot in range(action[1]):
             self.shape = rotated(self.shape)
 
-        self.shape, self.anchor = hard_drop(self.shape, pos, self.board)
+        self.shape, self.anchor, self.soft_count = hard_drop(
+            self.shape, pos, self.board
+        )
 
         reward = 0
         done = False
@@ -226,6 +230,7 @@ class Tetris:
         old_shape = self.shape
         old_anchor = self.anchor
         states = {}
+
         # Loop to try each posibilities
         for rotation in range(4):
             max_x = int(max([s[0] for s in self.shape]))
@@ -246,6 +251,8 @@ class Tetris:
 
             self.shape = rotated(self.shape)
         return states
+
+    # def hold_piece(self):
 
     def toggle_render(self):
         self.render_enabled = not self.render_enabled
@@ -273,7 +280,7 @@ class Tetris:
             extra_spaces = np.zeros((2 * 25, self.width * 25, 3))
             cv.putText(
                 extra_spaces,
-                "Score: " + str(score),
+                "Score: " + str(score) + " " + "Hold: " + "test",
                 (15, 35),
                 cv.FONT_HERSHEY_SIMPLEX,
                 1,
