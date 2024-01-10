@@ -27,6 +27,7 @@ max_steps = 250000
 max_reward = 500000
 
 print_interval = 10
+framerate = 2000
 
 # Initializing agent
 agent = Agent(
@@ -87,15 +88,15 @@ for episode in range(max_episode):
                     quit()  # quit game with 'q'
         # Render game
         if env.render_enabled:
-            env.render(total_reward, framerate=2000)
+            env.render(total_reward, framerate)
 
         # Calcutate next states
         if steps == 0 or env.held_shape == None:
             env.hold_shape()
+            print(env.get_shape_letter(env.held_shape))
 
         next_states = env.get_next_states()
-        print(next_states)
-        
+
         # If the dictionary is empty, meaning the game is over
         if not next_states:
             break
@@ -117,6 +118,8 @@ for episode in range(max_episode):
             env.shape = env.held_shape
             env.anchor = env.held_anchor
             env.held_shape = None
+        else:
+            print("orginalshape")
 
         reward, done = env.step(best_action)
         total_reward += reward

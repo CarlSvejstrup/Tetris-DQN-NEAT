@@ -151,7 +151,7 @@ class Tetris:
         reward = 0
         done = False
 
-        self._set_piece(True)
+        self._set_piece(True, self.shape, self.anchor)
         # cleared_lines = self._clear_lines()
         step_reward = self.reward_function()
         reward += step_reward
@@ -172,12 +172,12 @@ class Tetris:
 
         return np.array([0 for _ in range(self.state_size)])
 
-    def _set_piece(self, on):
+    def _set_piece(self, on, shape, anchor):
         """To lock a piece in the board"""
-        for i, j in self.shape:
-            x, y = i + self.anchor[0], j + self.anchor[1]
+        for i, j in shape:
+            x, y = i + anchor[0], j + anchor[1]
             if x < self.width and x >= 0 and y < self.height and y >= 0:
-                self.board[int(self.anchor[0] + i), int(self.anchor[1] + j)] = on
+                self.board[int(anchor[0] + i), int(anchor[1] + j)] = on
 
     def _clear_line_dqn(self, board):
         can_clear = [np.all(board[:, i]) for i in range(self.height)]
@@ -249,9 +249,9 @@ class Tetris:
                 pos[1] -= 1
 
                 self.anchor = pos
-                self._set_piece(True)
+                self._set_piece(True, self.shape, self.anchor)
                 states[(x, rotation, held)] = self.get_current_state(self.board[:])
-                self._set_piece(False)
+                self._set_piece(False, self.shape, self.anchor)
                 self.anchor = old_anchor
 
             self.shape = rotated(self.shape)
@@ -271,9 +271,9 @@ class Tetris:
                 pos[1] -= 1
 
                 self.held_anchor = pos
-                self._set_piece(True)
+                self._set_piece(True, self.held_shape, self.held_anchor)
                 states[(x, rotation, held)] = self.get_current_state(self.board[:])
-                self._set_piece(False)
+                self._set_piece(False, self.held_shape, self.held_anchor)
                 self.held_anchor = old_anchor
 
         self.held_shape = rotated(self.held_shape)
@@ -284,26 +284,33 @@ class Tetris:
         self.held_shape = self.shape
         self.held_anchor = self.anchor
 
-    def reverse_shape(self, shape):
-        if self.held_shape:
-            reverse_shapes = {tuple(v): k for k, v in shapes.items()}
-            held_shape_letter = reverse_shapes.get(tuple(shape))
-            if held_shape_letter is not None:
-                return held_shape_letter
-        return "Unknown"
+    # def reverse_shape(self, shape):
+    #     if shape:
+    #         reverse_shapes = {tuple(v): k for k, v in shapes.items()}
+    #         held_shape_letter = reverse_shapes.get(tuple(shape))
+    #         if held_shape_letter is not None:
+    #             return held_shape_letter
+    #     return "None"
+
+    def get_shape_letter(self, shape):
+        # Reverse lookup to find the shape letter for the given coordinates
+        for letter, shape_coords in shapes.items():
+            if shape_coords == shape:
+                return letter
+        return "None"
 
     def toggle_render(self):
         self.render_enabled = not self.render_enabled
 
     def render(self, score, framerate=1):
         if self.render_enabled:
-            self._set_piece(True)
+            self._set_piece(True, self.shape, self.anchor)
             board = self.board[:].T
             board = [
                 [green if board[i][j] else black for j in range(self.width)]
                 for i in range(self.height)
             ]
-            self._set_piece(False)
+            self._set_piece(False, self.shape, self.anchor)
 
             img = np.array(board).reshape((self.height, self.width, 3)).astype(np.uint8)
             img = cv.resize(
@@ -329,24 +336,16 @@ class Tetris:
             )
 
             # Convert to shape letter
-            held_shape_letter = self.reverse_shape(self.held_shape)
+            # held_shape_letter = self.reverse_shape(self.held_shape)
 
             # Checks if there is a held_shape
+
             if self.held_shape:
+                held_shape_letter = self.get_shape_letter(self.held_shape)
+
                 cv.putText(
                     extra_spaces,
                     "Hold: " + held_shape_letter,
-                    (15, 80),
-                    cv.FONT_HERSHEY_SIMPLEX,
-                    1,
-                    white,
-                    2,
-                    cv.LINE_AA,
-                )
-            else:
-                cv.putText(
-                    extra_spaces,
-                    "Hold: None",
                     (15, 80),
                     cv.FONT_HERSHEY_SIMPLEX,
                     1,
