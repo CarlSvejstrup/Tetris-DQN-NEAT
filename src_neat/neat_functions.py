@@ -1,9 +1,22 @@
 import pygame
 import neat
-from tetris_engine import Tetris
 import os
 import numpy as np
 import pickle
+import sys
+
+# Get the current script's directory
+current_dir = os.path.dirname(os.path.realpath(__file__))
+
+# Construct the path to the directory containing your_functions.py
+project_dir = os.path.join(current_dir, "..")
+
+# Add the project directory to the Python path
+sys.path.append(project_dir)
+
+# Now you can import functions from your_functions.py
+from tetris_engine import Tetris
+
 
 pygame.init()
 shapes_to_index = {
@@ -48,7 +61,7 @@ class Tetris_game:
     def make_move(self, net):
         best_action = None
         best_value = None
-        all_states = self.game.get_next_states()
+        all_states = self.game.merge_next_states()
         
         for action, state in zip(all_states.keys(), all_states.values()):
             output = net.activate(

@@ -260,6 +260,9 @@ class Tetris:
 
     # Merges states from held piece and not held piece
     def merge_next_states(self):
+        if self.held_shape == None:
+            self.held_shape, self.held_anchor = self.shape, self.anchor
+            self._new_piece
         next_state = self.get_next_states(self.shape, self.anchor, held=False)
         next_state_held = self.get_next_states(
             self.held_shape, self.held_anchor, held=True
