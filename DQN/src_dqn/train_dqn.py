@@ -46,11 +46,21 @@ episodes = []
 rewards = []
 current_max = 0
 highscore = 0
-
+save_log = False
 # Creating log writer
-log_folder = "run7"
-log_dir = "./DQN/training_logs/" + log_folder
-writer = SummaryWriter(log_dir=log_dir)
+
+if save_log:
+    log_folder = "run7"
+    log_dir = "./DQN/training_logs/" + log_folder
+    writer = SummaryWriter(log_dir=log_dir)
+
+    # Logging text
+    writer.add_text("Max episode", str(max_episode))
+    writer.add_text("Learningrate", str(agent.learning_rate))
+    writer.add_text("Replaystart", str(agent.replay_start))
+    writer.add_text("Batchsize", str(agent.batch_size))
+    writer.add_text("Discount value", str(agent.discount))
+    writer.add_text("Replay buffer size", str(agent.memory_size))
 
 
 # logging reward, loss and epsilon to tensorboard
@@ -63,12 +73,7 @@ def logging():
 
 
 # Log metrics to TensorBoard
-writer.add_text("Max episode", str(max_episode))
-writer.add_text("Learningrate", str(agent.learning_rate))
-writer.add_text("Replaystart", str(agent.replay_start))
-writer.add_text("Batchsize", str(agent.batch_size))
-writer.add_text("Discount value", str(agent.discount))
-writer.add_text("Replay buffer size", str(agent.memory_size))
+
 
 for episode in range(max_episode):
     current_state = env.reset()
@@ -133,7 +138,8 @@ for episode in range(max_episode):
         steps += 1
 
     # logs data to tensorboard
-    logging()
+    if save_log:
+        logging()
 
     # Monitor reward and episodes
     episodes.append(episode)
