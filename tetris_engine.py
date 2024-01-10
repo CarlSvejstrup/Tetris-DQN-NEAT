@@ -263,12 +263,12 @@ class Tetris:
         if self.held_shape == None:
             self.held_shape, self.held_anchor = self.shape, self.anchor
             self._new_piece
+        next_state = self.get_next_states(self.shape, self.anchor, held=False)
         if self.shape != self.held_shape:
-            next_state = self.get_next_states(self.shape, self.anchor, held=False)
-        next_state_held = self.get_next_states(
-            self.held_shape, self.held_anchor, held=True
-        )
-        next_state.update(next_state_held)
+            next_state_held = self.get_next_states(
+                self.held_shape, self.held_anchor, held=True
+            )
+            next_state.update(next_state_held)
         return next_state
 
     def hold_shape(self):
