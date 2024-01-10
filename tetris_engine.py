@@ -19,6 +19,14 @@ green = (156, 204, 101)
 black = (0, 0, 0)
 white = (255, 255, 255)
 
+I = (0, 255, 255)
+O = (255, 255, 0)
+T = (128, 0, 128)
+S = (0, 255, 0)
+Z = (255, 0, 0)
+L = (0, 0, 255)
+J = (255, 127, 0)
+
 
 def rotated(shape):
     return [(-j, i) for i, j in shape]
@@ -162,7 +170,6 @@ class Tetris:
         self._set_piece(True, self.shape, self.anchor)
         # cleared_lines = self._clear_lines()
         step_reward = self.reward_function()
-        print(step_reward)
         reward += step_reward
         if np.any(self.board[:, 0]):
             self.reset()
@@ -171,7 +178,7 @@ class Tetris:
             # Termination reward based on system
             if self.reward_system == 1:
                 reward -= 25
-            elif self.reward_system == 2:
+            elif self.reward_system == 2 or self.reward_system == 3:
                 reward -= 5
         else:
             self._new_piece()
@@ -300,7 +307,7 @@ class Tetris:
     def toggle_render(self):
         self.render_enabled = not self.render_enabled
 
-    def render(self, score, framerate=1):
+    def render(self, score, framerate=20):
         if self.render_enabled:
             self._set_piece(True, self.shape, self.anchor)
             board = self.board[:].T
@@ -371,64 +378,3 @@ class Tetris:
 
             # Wait for a short time to allow other events to be handled
             pygame.time.wait(1)
-
-    def render1(self, score, framerate=1):
-        if self.render_enabled:
-            self._set_piece(True, self.shape, self.anchor)
-            board = self.board[:].T
-            board = [
-                [green if board[i][j] else black for j in range(self.width)]
-                for i in range(self.height)
-            ]
-            self._set_piece(False, self.shape, self.anchor)
-
-            img = np.array(board).reshape((self.height, self.width, 3)).astype(np.uint8)
-            img = cv.resize(
-                img, (self.width * 25, self.height * 25), interpolation=cv.INTER_NEAREST
-            )
-
-            # To draw lines every 25 pixels
-            img[[i * 25 for i in range(self.height)], :, :] = 0
-            img[:, [i * 25 for i in range(self.width)], :] = 0
-
-            # Add extra spaces on the top to display game score and holding piece
-            extra_spaces = np.zeros((5 * 25, self.width * 25, 3))
-
-            cv.putText(
-                extra_spaces,
-                "Score: " + str(score),
-                (15, 35),
-                cv.FONT_HERSHEY_SIMPLEX,
-                1,
-                white,
-                2,
-                cv.LINE_AA,
-            )
-
-            # Convert to shape letter
-            # held_shape_letter = self.reverse_shape(self.held_shape)
-
-            # Checks if there is a held_shape
-
-            if self.held_shape:
-                held_shape_letter = self.get_shape_letter(self.held_shape)
-
-                cv.putText(
-                    extra_spaces,
-                    "Hold: " + held_shape_letter,
-                    (15, 80),
-                    cv.FONT_HERSHEY_SIMPLEX,
-                    1,
-                    white,
-                    2,
-                    cv.LINE_AA,
-                )
-
-            # Add extra spaces to the board image
-            img = np.concatenate((extra_spaces, img), axis=0)
-
-            # Draw horizontal lines to separate board and extra space area
-            img[90, :, :] = white
-
-            cv.imshow("DQN Tetris", img)
-            cv.waitKey(framerate)

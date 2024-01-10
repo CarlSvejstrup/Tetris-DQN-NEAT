@@ -10,6 +10,7 @@ from agent_dqn import Agent
 import time
 import pygame
 from torch.utils.tensorboard import SummaryWriter
+import numpy as np
 
 
 ## BUG
@@ -33,31 +34,33 @@ screen = pygame.display.set_mode((width, height))
 env = Tetris(10, 20)
 
 # Initialize training variables
-max_episode = 100000
+max_episode = 3000
 max_steps = 250000
 max_reward = 500000
 
 
 # Log parameters
 print_interval = 10
-framerate = 10
-save_log = False
-log_name = "hold_test_1"
-save_model = False
+interval_reward = []
+
+framerate = 100
+save_log = True
+log_name = "hold_test_4"
+save_model = True
 exit_program = False
-run_hold = True
+run_hold = False
 
 # Reward system
 env.reward_system = 3
 
 """"
-reward_system = 1
+env.reward_system = 1
 Oldschool tetris reward system
 
-reward_system = 2
+env.reward_system = 2
 Reward = cleared_lines**2 * self.width + self.soft_count
 
-reward_system = 3
+env.reward_system = 3
 Reward = cleared_lines**2 * self.width + 1
 """
 
@@ -65,11 +68,11 @@ Reward = cleared_lines**2 * self.width + 1
 # Initializing agent
 agent = Agent(
     env.state_size,
-    memory_size=100000,
-    discount=0.99,
-    epsilon_min=0.1,
-    epsilon_end_episode=3000,
-    batch_size=516,
+    memory_size=30000,
+    discount=0.95,
+    epsilon_min=0.001,
+    epsilon_end_episode=2000,
+    batch_size=512,
     episodes_per_update=1,
     replay_start=3000,
     learning_rate=0.0001,
@@ -93,6 +96,7 @@ if save_log:
     writer.add_text("Discount value", str(agent.discount))
     writer.add_text("Replay buffer size", str(agent.memory_size))
     writer.add_text("Hold", str(run_hold))
+    writer.add_text("Rewardsystem", str(env.reward_system))
 
 
 # logging reward, loss and epsilon to tensorboard
@@ -177,6 +181,11 @@ for episode in range(max_episode):
     episodes.append(episode)
     rewards.append(total_reward)
 
+    if len(interval_reward) < print_interval:
+        interval_reward.append(total_reward)
+    else:
+        interval_reward = []
+
     # Check if episode was a highscore
     if total_reward > highscore:
         highscore = total_reward
@@ -195,7 +204,7 @@ for episode in range(max_episode):
     # Print training data
     if episode % print_interval == 0:
         print("Running episode " + str(episode))
-        print("Total reward: " + str(total_reward))
+        print("Mean reward: " + str(np.mean(interval_reward)))
 
 # Close pygame
 pygame.quit()

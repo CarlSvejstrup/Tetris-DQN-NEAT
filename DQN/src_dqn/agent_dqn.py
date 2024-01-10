@@ -11,15 +11,16 @@ class QNetwork(nn.Module):
     def __init__(self, state_size):
         super(QNetwork, self).__init__()
         self.fc1 = nn.Linear(state_size, 64)
-        self.fc2 = nn.Linear(64, 64)
+        # self.fc2 = nn.Linear(64, 64)
         self.fc3 = nn.Linear(64, 32)
         self.fc4 = nn.Linear(32, 1)
         self.leaky_relu = nn.LeakyReLU(0.01)
+        self.relu = nn.ReLU()
 
     def forward(self, x):
-        x = self.leaky_relu(self.fc1(x))
-        x = self.leaky_relu(self.fc2(x))
-        x = self.leaky_relu(self.fc3(x))
+        x = self.relu(self.fc1(x))
+        # x = self.relu(self.fc2(x))
+        x = self.relu(self.fc3(x))
         x = self.fc4(x)
         return x
 
@@ -33,7 +34,7 @@ class Agent:
         epsilon_min=0.1,
         epsilon_end_episode=3000,
         batch_size=516,
-        episodes_per_update=5,
+        episodes_per_update=1,
         replay_start=3000,
         learning_rate=0.0001,
     ):
@@ -88,9 +89,7 @@ class Agent:
         ):
             batch = random.sample(self.memory, self.batch_size)
 
-            next_states = torch.tensor(
-                np.array([s[1] for s in batch]), dtype=torch.float32
-            )
+            next_states = torch.tensor(np.array([s[1] for s in batch]), dtype=torch.float32)
 
             # print(f'next_states: {next_states}')
             next_qvalue = self.model(next_states).detach().numpy()
