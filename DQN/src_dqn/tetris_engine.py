@@ -256,65 +256,9 @@ class Tetris:
 
             self.shape = rotated(self.shape)
 
-        # Reset the current shape to its original state
-        self.shape = old_shape
-        self.anchor = old_anchor
-
-        # # # Loop to try each possibility for the held shape
-        # held = True
-        # for rotation in range(4):
-        #     max_x = int(max([s[0] for s in self.held_shape]))
-        #     min_x = int(min([s[0] for s in self.held_shape]))
-
-        #     for x in range(abs(min_x), self.width - max_x):
-        #         # Try current position
-        #         pos = [x, 0]
-        #         while not is_occupied(self.held_shape, pos, self.board):
-        #             pos[1] += 1
-        #         pos[1] -= 1
-
-        #         self.anchor = pos
-        #         self._set_piece(True)
-        #         states[(x, rotation, held)] = self.get_current_state(self.board[:])
-        #         self._set_piece(False)
-        #         self.anchor = old_anchor
-
-        #     self.held_shape = rotated(self.held_shape)
-
-        # # Reset the held shape to its original state
-        # self.held_shape = old_held_shape
-
-        return states
-
-    def get_next_states1(self):
-        """To get all possible state from current shape"""
-        old_shape = self.shape
-        old_anchor = self.anchor
-        held = False
-
-        states = {}
-        # Loop to try each posibilities
-        for rotation in range(4):
-            max_x = int(max([s[0] for s in self.shape]))
-            min_x = int(min([s[0] for s in self.shape]))
-
-            for x in range(abs(min_x), self.width - max_x):
-                # Try current position
-                pos = [x, 0]
-                while not is_occupied(self.shape, pos, self.board):
-                    pos[1] += 1
-                pos[1] -= 1
-
-                self.anchor = pos
-                self._set_piece(True)
-                states[(x, rotation, held)] = self.get_current_state(self.board[:])
-                self._set_piece(False)
-                self.anchor = old_anchor
-
-            self.shape = rotated(self.shape)
-
+        # # Loop to try each possibility for the held shape
         held = True
-
+        old_anchor = self.held_anchor
         for rotation in range(4):
             max_x = int(max([s[0] for s in self.held_shape]))
             min_x = int(min([s[0] for s in self.held_shape]))
@@ -326,23 +270,27 @@ class Tetris:
                     pos[1] += 1
                 pos[1] -= 1
 
-                self.anchor = pos
+                self.held_anchor = pos
                 self._set_piece(True)
                 states[(x, rotation, held)] = self.get_current_state(self.board[:])
                 self._set_piece(False)
-                self.anchor = old_anchor
+                self.held_anchor = old_anchor
 
-            self.held_shape = rotated(self.held_shape)
+        self.held_shape = rotated(self.held_shape)
+
         return states
 
     def hold_shape(self):
         self.held_shape = self.shape
+        self.held_anchor = self.anchor
 
     def reverse_shape(self, shape):
         if self.held_shape:
             reverse_shapes = {tuple(v): k for k, v in shapes.items()}
-            held_shape_letter = reverse_shapes[tuple(shape)]
-            return held_shape_letter
+            held_shape_letter = reverse_shapes.get(tuple(shape))
+            if held_shape_letter is not None:
+                return held_shape_letter
+        return "Unknown"
 
     def toggle_render(self):
         self.render_enabled = not self.render_enabled
