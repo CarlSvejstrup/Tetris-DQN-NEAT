@@ -32,10 +32,13 @@ max_reward = 500000
 
 # Log parameters
 print_interval = 10
-framerate = 1
-save_log = False
+framerate = 10
+save_log = True
+log_name = 'hold_test_1'
 save_model = False
 exit_program = False
+run_hold = True
+
 
 # Initializing agent
 agent = Agent(
@@ -45,7 +48,7 @@ agent = Agent(
     epsilon_min=0.1,
     epsilon_end_episode=3000,
     batch_size=516,
-    episodes_per_update=2,
+    episodes_per_update=1,
     replay_start=3000,
     learning_rate=0.0001,
 )
@@ -57,8 +60,7 @@ highscore = 0
 
 # Creating log writer
 if save_log:
-    log_folder = "run7"
-    log_dir = "./DQN/training_logs/" + log_folder
+    log_dir = "./DQN/training_logs/" + log_name
     writer = SummaryWriter(log_dir=log_dir)
 
     # Logging text
@@ -68,6 +70,7 @@ if save_log:
     writer.add_text("Batchsize", str(agent.batch_size))
     writer.add_text("Discount value", str(agent.discount))
     writer.add_text("Replay buffer size", str(agent.memory_size))
+    writer.add_text("Hold", str(run_hold))
 
 
 # logging reward, loss and epsilon to tensorboard
@@ -85,6 +88,7 @@ for episode in range(max_episode):
     steps = 0
     total_reward = 0
     render_enabled = True
+    env.held_shape = None
 
     while not done and steps < max_steps:
         # Key controls for the training session
@@ -109,7 +113,11 @@ for episode in range(max_episode):
             env.hold_shape()
             env._new_piece()
 
-        next_states = env.merge_next_states()
+
+        if run_hold:
+            next_states = env.merge_next_states()
+        else:
+            next_states = env.get_next_states(env.shape, env.anchor, False)
 
         # If the dictionary is empty, meaning the game is over
         if not next_states:
@@ -128,9 +136,8 @@ for episode in range(max_episode):
                 break
 
         if best_action[2]:
-            env.shape = env.held_shape
-            env.anchor = env.held_anchor
-            env.held_shape = None
+            env.shape, env.held_shape = env.held_shape, env.shape
+            env.anchor, env.held_anchor = env.held_anchor, env.anchor
 
         reward, done = env.step(best_action)
         total_reward += reward
