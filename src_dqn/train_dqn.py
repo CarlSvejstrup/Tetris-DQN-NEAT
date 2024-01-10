@@ -1,11 +1,7 @@
 from tetris_engine import Tetris
 from agent_dqn import Agent
 import time
-import matplotlib.pyplot as plt
-import keyboard
 import pygame
-import csv
-import os
 from torch.utils.tensorboard import SummaryWriter
 
 
@@ -111,10 +107,10 @@ for episode in range(max_episode):
     if agent.epsilon > agent.epsilon_min:
         agent.epsilon -= agent.epsilon_decay
 
-    print("Total reward: " + str(total_reward))
+    """print("Total reward: " + str(total_reward))
 
     if agent.losses:
         print(f"loss: {agent.losses[-1]}")
-    print(f"epsilon: {agent.epsilon_list[-1]}")
+    print(f"epsilon: {agent.epsilon_list[-1]}")"""
 
 writer.close()

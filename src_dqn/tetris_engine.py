@@ -1,6 +1,7 @@
 import numpy as np
 import cv2 as cv
 import random
+#random.seed(1)
 
 shapes = {
     "T": [(0, 0), (-1, 0), (1, 0), (0, -1)],
@@ -11,7 +12,7 @@ shapes = {
     "I": [(0, 0), (0, -1), (0, -2), (0, -3)],
     "O": [(0, 0), (0, -1), (-1, 0), (-1, -1)],
 }
-shape_names = ["T", "J", "L", "Z", "S", "I", "O"]
+shape_names = ["T", "T", "T", "T", "T", "T", "T"]
 green = (156, 204, 101)
 black = (0, 0, 0)
 white = (255, 255, 255)
@@ -41,12 +42,13 @@ def soft_drop(shape, anchor, board):
 
 
 def hard_drop(shape, anchor, board):
+    soft_count = 0
     while True:
         _, anchor_new = soft_drop(shape, anchor, board)
         if anchor_new == anchor:
-            return shape, anchor_new
+            return shape, anchor_new, soft_count
+        soft_count += 1
         anchor = anchor_new
-
 
 class Tetris:
     def __init__(self, width, height):
@@ -122,23 +124,38 @@ class Tetris:
         for rot in range(action[1]):
             self.shape = rotated(self.shape)
 
-        self.shape, self.anchor = hard_drop(self.shape, pos, self.board)
+        self.shape, self.anchor, self.soft_count = hard_drop(
+            self.shape, pos, self.board
+        )
 
         reward = 0
         done = False
 
         self._set_piece(True)
-        cleared_lines = self._clear_lines()
-        reward += cleared_lines**2 * self.width + 1
+        # cleared_lines = self._clear_lines()
+        step_reward = self.reward_function()
+        reward += step_reward
         if np.any(self.board[:, 0]):
             self.reset()
             done = True
-            reward -= 5
+            reward -= 25
         else:
             self._new_piece()
 
         return reward, done
+    def reward_function(self):
+        cleared_lines = self._clear_lines()
+        # step_reward = cleared_lines**3 * self.width + self.soft_count
 
+        if cleared_lines == 1:
+            return 40 + self.soft_count
+        elif cleared_lines == 2:
+            return 100 + self.soft_count
+        elif cleared_lines == 3:
+            return 300 + self.soft_count
+        elif cleared_lines == 4:
+            return 1200 + self.soft_count
+        return self.soft_count
     def reset(self):
         self.time = 0
         self.score = 0
@@ -146,6 +163,14 @@ class Tetris:
         self.board = np.zeros_like(self.board)
 
         return np.array([0 for _ in range(self.state_size)])
+    
+    def reset_cnn(self):
+        self.time = 0
+        self.score = 0
+        self._new_piece()
+        self.board = np.zeros_like(self.board)
+
+        return self.board
 
     def _set_piece(self, on):
         """To lock a piece in the board"""
@@ -224,6 +249,32 @@ class Tetris:
                 self.anchor = pos
                 self._set_piece(True)
                 states[(x, rotation)] = self.get_current_state(self.board[:])
+                self._set_piece(False)
+                self.anchor = old_anchor
+
+            self.shape = rotated(self.shape)
+        return states
+
+    def get_next_states_boards(self):
+        """To get all possible state from current shape"""
+        old_shape = self.shape
+        old_anchor = self.anchor
+        states = {}
+        # Loop to try each posibilities
+        for rotation in range(4):
+            max_x = int(max([s[0] for s in self.shape]))
+            min_x = int(min([s[0] for s in self.shape]))
+
+            for x in range(abs(min_x), self.width - max_x):
+                # Try current position
+                pos = [x, 0]
+                while not is_occupied(self.shape, pos, self.board):
+                    pos[1] += 1
+                pos[1] -= 1
+
+                self.anchor = pos
+                self._set_piece(True)
+                states[(x, rotation)] = np.copy(self.board)
                 self._set_piece(False)
                 self.anchor = old_anchor
 

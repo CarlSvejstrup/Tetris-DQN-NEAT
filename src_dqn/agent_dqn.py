@@ -99,6 +99,7 @@ class Agent:
 
             self.optimizer.zero_grad()
             output = self.model(x)
+            print(sum([abs(output_) for output_ in output]))
             loss = nn.MSELoss()(output, y)
             self.losses.append(loss)
             loss.backward()
