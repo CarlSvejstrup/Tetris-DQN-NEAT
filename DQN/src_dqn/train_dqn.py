@@ -37,14 +37,29 @@ max_episode = 100000
 max_steps = 250000
 max_reward = 500000
 
+
 # Log parameters
 print_interval = 10
 framerate = 10
-save_log = True
+save_log = False
 log_name = "hold_test_1"
 save_model = False
 exit_program = False
 run_hold = True
+
+# Reward system
+env.reward_system = 3
+
+""""
+reward_system = 1
+Oldschool tetris reward system
+
+reward_system = 2
+Reward = cleared_lines**2 * self.width + self.soft_count
+
+reward_system = 3
+Reward = cleared_lines**2 * self.width + 1
+"""
 
 
 # Initializing agent
@@ -114,11 +129,6 @@ for episode in range(max_episode):
         # Render game
         if env.render_enabled:
             env.render(total_reward, framerate=framerate)
-
-        # Calcutate next states
-        if env.held_shape == None:
-            env.hold_shape()
-            env._new_piece()
 
         if run_hold:
             next_states = env.merge_next_states()

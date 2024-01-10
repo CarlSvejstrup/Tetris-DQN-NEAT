@@ -67,6 +67,7 @@ class Tetris:
         self.score = -1
         self.anchor = None
         self.shape = None
+        self.reward_system = 1
 
         # Holding a piece
         self.held_shape = None
@@ -126,17 +127,23 @@ class Tetris:
 
     def reward_function(self):
         cleared_lines = self._clear_lines()
-        # step_reward = cleared_lines**3 * self.width + self.soft_count
 
-        if cleared_lines == 1:
-            return 40 + self.soft_count
-        elif cleared_lines == 2:
-            return 100 + self.soft_count
-        elif cleared_lines == 3:
-            return 300 + self.soft_count
-        elif cleared_lines == 4:
-            return 1200 + self.soft_count
-        return self.soft_count
+        if self.reward_system == 1:
+            if cleared_lines == 1:
+                return 40 + self.soft_count
+            elif cleared_lines == 2:
+                return 100 + self.soft_count
+            elif cleared_lines == 3:
+                return 300 + self.soft_count
+            elif cleared_lines == 4:
+                return 1200 + self.soft_count
+            return self.soft_count
+
+        elif self.reward_system == 2:
+            return cleared_lines**2 * self.width + self.soft_count
+
+        elif self.reward_system == 3:
+            return (cleared_lines**2 * self.width) + 1
 
     def step(self, action):
         pos = [action[0], 0]
@@ -155,11 +162,17 @@ class Tetris:
         self._set_piece(True, self.shape, self.anchor)
         # cleared_lines = self._clear_lines()
         step_reward = self.reward_function()
+        print(step_reward)
         reward += step_reward
         if np.any(self.board[:, 0]):
             self.reset()
             done = True
-            reward -= 25
+
+            # Termination reward based on system
+            if self.reward_system == 1:
+                reward -= 25
+            elif self.reward_system == 2:
+                reward -= 5
         else:
             self._new_piece()
 
@@ -260,20 +273,22 @@ class Tetris:
 
     # Merges states from held piece and not held piece
     def merge_next_states(self):
+        # Hold current shape if hold is empy
         if self.held_shape == None:
             self.held_shape, self.held_anchor = self.shape, self.anchor
+            # Set piece to a new shape and anchor
             self._new_piece
+
+        # Only find next_state for hold if its different from current shape
         next_state = self.get_next_states(self.shape, self.anchor, held=False)
         if self.shape != self.held_shape:
             next_state_held = self.get_next_states(
                 self.held_shape, self.held_anchor, held=True
             )
             next_state.update(next_state_held)
-        return next_state
 
-    def hold_shape(self):
-        self.held_shape = self.shape
-        self.held_anchor = self.anchor
+        # Return state
+        return next_state
 
     def get_shape_letter(self, shape):
         # Reverse lookup to find the shape letter for the given coordinates
