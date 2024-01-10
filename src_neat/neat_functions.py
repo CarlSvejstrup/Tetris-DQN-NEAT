@@ -1,6 +1,6 @@
 import pygame
 import neat
-from engine import Tetris
+from tetris_engine import Tetris
 import os
 import numpy as np
 import pickle
