@@ -13,14 +13,8 @@ from torch.utils.tensorboard import SummaryWriter
 import numpy as np
 
 
-## BUG
-# Placement of new piece with hold
-## Mixes up game board
-
-
 ## TODO
-# Implement hold function
-# Mulitprossesing next_states
+# Seed setup
 # Server setup
 # Hyperprameters
 
@@ -34,7 +28,7 @@ screen = pygame.display.set_mode((width, height))
 env = Tetris(10, 20)
 
 # Initialize training variables
-max_episode = 3000
+max_episode = 4000
 max_steps = 250000
 max_reward = 500000
 
@@ -45,13 +39,13 @@ interval_reward = []
 
 framerate = 100
 save_log = True
-log_name = "hold_test_4"
+log_name = "hold_test_2_r1"
 save_model = True
 exit_program = False
-run_hold = False
+run_hold = True
 
 # Reward system
-env.reward_system = 3
+env.reward_system = 1
 
 """"
 env.reward_system = 1
@@ -69,13 +63,13 @@ Reward = cleared_lines**2 * self.width + 1
 agent = Agent(
     env.state_size,
     memory_size=30000,
-    discount=0.95,
+    discount=0.98,
     epsilon_min=0.001,
-    epsilon_end_episode=2000,
+    epsilon_end_episode=3000,
     batch_size=512,
     episodes_per_update=1,
     replay_start=3000,
-    learning_rate=0.0001,
+    learning_rate=0.001,
 )
 
 episodes = []
@@ -181,7 +175,7 @@ for episode in range(max_episode):
     episodes.append(episode)
     rewards.append(total_reward)
 
-    if len(interval_reward) < print_interval:
+    if len(interval_reward) <= print_interval:
         interval_reward.append(total_reward)
     else:
         interval_reward = []
@@ -203,8 +197,11 @@ for episode in range(max_episode):
 
     # Print training data
     if episode % print_interval == 0:
-        print("Running episode " + str(episode))
-        print("Mean reward: " + str(np.mean(interval_reward)))
+        print(f"Running episode {str(episode)}")
+        print(f"Epsilon:  {str(agent.epsilon)}")
+        print(f"Mean reward:  {str(np.mean(interval_reward))}")
+        print(f"Round Highscore: {str(max(interval_reward))}")
+        print(f"Training Highscore: {str(highscore)}")
 
 # Close pygame
 pygame.quit()
