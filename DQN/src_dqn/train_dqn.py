@@ -1,3 +1,10 @@
+import sys
+import os
+
+# Get the parent directory (one level up)
+main_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.append(main_directory)
+
 from tetris_engine import Tetris
 from agent_dqn import Agent
 import time
@@ -34,7 +41,7 @@ max_reward = 500000
 print_interval = 10
 framerate = 10
 save_log = True
-log_name = 'hold_test_1'
+log_name = "hold_test_1"
 save_model = False
 exit_program = False
 run_hold = True
@@ -112,7 +119,6 @@ for episode in range(max_episode):
         if env.held_shape == None:
             env.hold_shape()
             env._new_piece()
-
 
         if run_hold:
             next_states = env.merge_next_states()
