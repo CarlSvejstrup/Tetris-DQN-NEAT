@@ -230,55 +230,31 @@ class Tetris:
 
         return np.array([cleared_lines, holes, bumpiness, height])
 
-    def get_next_states(self):
-        old_shape = self.shape
-        old_anchor = self.anchor
-        # old_held_anchor = self.shape.anchor  # Store the original held shape
-        held = False
+    def get_next_states(self, shape, anchor, held):
+        old_shape = shape
+        old_anchor = anchor
 
         states = {}
         # Loop to try each possibility for the current shape
         for rotation in range(4):
-            max_x = int(max([s[0] for s in self.shape]))
-            min_x = int(min([s[0] for s in self.shape]))
+            max_x = int(max([s[0] for s in shape]))
+            min_x = int(min([s[0] for s in shape]))
 
             for x in range(abs(min_x), self.width - max_x):
                 # Try current position
                 pos = [x, 0]
-                while not is_occupied(self.shape, pos, self.board):
+                while not is_occupied(shape, pos, self.board):
                     pos[1] += 1
                 pos[1] -= 1
 
-                self.anchor = pos
-                self._set_piece(True, self.shape, self.anchor)
+                anchor = pos
+                self._set_piece(True, shape, anchor)
                 states[(x, rotation, held)] = self.get_current_state(self.board[:])
-                self._set_piece(False, self.shape, self.anchor)
-                self.anchor = old_anchor
+                self._set_piece(False, shape, anchor)
+                anchor = old_anchor
 
-            self.shape = rotated(self.shape)
-
-        # # Loop to try each possibility for the held shape
-        held = True
-        old_anchor = self.held_anchor
-        for rotation in range(4):
-            max_x = int(max([s[0] for s in self.held_shape]))
-            min_x = int(min([s[0] for s in self.held_shape]))
-
-            for x in range(abs(min_x), self.width - max_x):
-                # Try current position
-                pos = [x, 0]
-                while not is_occupied(self.held_shape, pos, self.board):
-                    pos[1] += 1
-                pos[1] -= 1
-
-                self.held_anchor = pos
-                self._set_piece(True, self.held_shape, self.held_anchor)
-                states[(x, rotation, held)] = self.get_current_state(self.board[:])
-                self._set_piece(False, self.held_shape, self.held_anchor)
-                self.held_anchor = old_anchor
-
-        self.held_shape = rotated(self.held_shape)
-
+            shape = rotated(shape)
+            
         return states
 
     def hold_shape(self):
