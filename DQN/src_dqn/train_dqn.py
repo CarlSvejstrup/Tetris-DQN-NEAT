@@ -18,6 +18,10 @@ from torch.utils.tensorboard import SummaryWriter
 
 pygame.init()
 
+# Initializing pygame window
+width, height = 300, 700
+screen = pygame.display.set_mode((width, height))
+
 # Initialize tetris environment
 env = Tetris(10, 20)
 
@@ -26,8 +30,12 @@ max_episode = 100000
 max_steps = 250000
 max_reward = 500000
 
+# Log parameters
 print_interval = 10
-framerate = 2000
+framerate = 1
+save_log = False
+save_model = False
+exit_program = False
 
 # Initializing agent
 agent = Agent(
@@ -46,9 +54,8 @@ episodes = []
 rewards = []
 current_max = 0
 highscore = 0
-save_log = False
-# Creating log writer
 
+# Creating log writer
 if save_log:
     log_folder = "run7"
     log_dir = "./DQN/training_logs/" + log_folder
@@ -72,9 +79,6 @@ def logging():
         writer.add_scalar("Loss", agent.losses[-1], episode)
 
 
-# Log metrics to TensorBoard
-
-
 for episode in range(max_episode):
     current_state = env.reset()
     done = False
@@ -89,11 +93,16 @@ for episode in range(max_episode):
                 if event.key == pygame.K_r:
                     env.toggle_render()  # Toggle render state with 'r'
                 if event.key == pygame.K_q:
-                    agent.model_save(path=f"DQN/models/{str(highscore)}.pt")
-                    quit()  # quit game with 'q'
+                    exit_program = True
+                if event.type == pygame.QUIT:
+                    exit_program = True
+
+        if exit_program:
+            break
+
         # Render game
         if env.render_enabled:
-            env.render(total_reward, framerate)
+            env.render(total_reward, framerate=framerate)
 
         # Calcutate next states
         if steps == 0 or env.held_shape == None:
@@ -137,6 +146,9 @@ for episode in range(max_episode):
 
         steps += 1
 
+    if exit_program:
+        break
+
     # logs data to tensorboard
     if save_log:
         logging()
@@ -165,7 +177,11 @@ for episode in range(max_episode):
         print("Running episode " + str(episode))
         print("Total reward: " + str(total_reward))
 
+# Close pygame
+pygame.quit()
+
 # Close tensorboard
-writer.close()
+if save_log:
+    writer.close()
 
 print(highscore)
