@@ -236,6 +236,7 @@ class Tetris:
 
         states = {}
         # Loop to try each possibility for the current shape
+
         for rotation in range(4):
             max_x = int(max([s[0] for s in shape]))
             min_x = int(min([s[0] for s in shape]))
@@ -254,8 +255,17 @@ class Tetris:
                 anchor = old_anchor
 
             shape = rotated(shape)
-            
+
         return states
+
+    # Merges states from held piece and not held piece
+    def merge_next_states(self):
+        next_state = self.get_next_states(self.shape, self.anchor, held=False)
+        next_state_held = self.get_next_states(
+            self.held_shape, self.held_anchor, held=True
+        )
+        next_state.update(next_state_held)
+        return next_state
 
     def hold_shape(self):
         self.held_shape = self.shape

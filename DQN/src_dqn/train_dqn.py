@@ -105,11 +105,11 @@ for episode in range(max_episode):
             env.render(total_reward, framerate=framerate)
 
         # Calcutate next states
-        if steps == 0 or env.held_shape == None:
+        if env.held_shape == None:
             env.hold_shape()
-            print(env.get_shape_letter(env.held_shape))
+            env._new_piece()
 
-        next_states = env.get_next_states()
+        next_states = env.merge_next_states()
 
         # If the dictionary is empty, meaning the game is over
         if not next_states:
@@ -128,12 +128,9 @@ for episode in range(max_episode):
                 break
 
         if best_action[2]:
-            print("held action")
             env.shape = env.held_shape
             env.anchor = env.held_anchor
             env.held_shape = None
-        else:
-            print("orginalshape")
 
         reward, done = env.step(best_action)
         total_reward += reward
