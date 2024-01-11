@@ -6,15 +6,27 @@ import random
 import sys
 from collections import deque
 
+seed = 42
+
+# Set seed for random library
+random.seed(seed)
+
+# Set seed for numpy
+np.random.seed(seed)
+
+# Set seed for PyTorch
+torch.manual_seed(seed)
+
 
 class QNetwork(nn.Module):
-    def __init__(self, state_size):
+    def __init__(self, state_size, seed):
         super(QNetwork, self).__init__()
         self.fc1 = nn.Linear(state_size, 64)
         self.fc2 = nn.Linear(64, 64)
         self.fc3 = nn.Linear(64, 32)
         self.fc4 = nn.Linear(32, 1)
         self.leaky_relu = nn.LeakyReLU(0.01)
+        self.relu = nn.ReLU()
 
     def forward(self, x):
         x = self.leaky_relu(self.fc1(x))
@@ -27,13 +39,14 @@ class QNetwork(nn.Module):
 class Agent:
     def __init__(
         self,
-        state_size,
+        state_size: int,
+        seed: int,
         memory_size=100000,
         discount=0.99,
         epsilon_min=0.1,
         epsilon_end_episode=3000,
         batch_size=516,
-        episodes_per_update=5,
+        episodes_per_update=1,
         replay_start=3000,
         learning_rate=0.0001,
     ):
@@ -53,6 +66,7 @@ class Agent:
         self.episodes_per_update = episodes_per_update
         self.replay_start = replay_start
         self.learning_rate = learning_rate
+        self.seed = random.seed(seed)
 
         self.model = QNetwork(state_size)
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)

@@ -10,16 +10,11 @@ from agent_dqn import Agent
 import time
 import pygame
 from torch.utils.tensorboard import SummaryWriter
-
-
-## BUG
-# Placement of new piece with hold
-## Mixes up game board
+import numpy as np
 
 
 ## TODO
-# Implement hold function
-# Mulitprossesing next_states
+# Seed setup
 # Server setup
 # Hyperprameters
 
@@ -29,35 +24,56 @@ pygame.init()
 width, height = 300, 700
 screen = pygame.display.set_mode((width, height))
 
+# set seed
+seed = 12
+
 # Initialize tetris environment
-env = Tetris(10, 20)
+env = Tetris(10, 20, seed)
 
 # Initialize training variables
-max_episode = 100000
+max_episode = 4000
 max_steps = 250000
 max_reward = 500000
 
+
 # Log parameters
 print_interval = 10
-framerate = 10
-save_log = True
-log_name = "hold_test_2"
+interval_reward = []
+
+framerate = 2
+save_log = False
+log_name = "hold_test_2_r1"
 save_model = False
 exit_program = False
 run_hold = True
+
+# Reward system
+env.reward_system = 1
+
+""""
+env.reward_system = 1
+Oldschool tetris reward system
+
+env.reward_system = 2
+Reward = cleared_lines**2 * self.width + self.soft_count
+
+env.reward_system = 3
+Reward = cleared_lines**2 * self.width + 1
+"""
 
 
 # Initializing agent
 agent = Agent(
     env.state_size,
-    memory_size=100000,
-    discount=0.99,
-    epsilon_min=0.1,
+    memory_size=30000,
+    discount=0.98,
+    epsilon_min=0.001,
     epsilon_end_episode=3000,
-    batch_size=516,
+    batch_size=512,
     episodes_per_update=1,
     replay_start=3000,
-    learning_rate=0.0001,
+    learning_rate=0.001,
+    seed=seed
 )
 
 episodes = []
@@ -78,6 +94,7 @@ if save_log:
     writer.add_text("Discount value", str(agent.discount))
     writer.add_text("Replay buffer size", str(agent.memory_size))
     writer.add_text("Hold", str(run_hold))
+    writer.add_text("Rewardsystem", str(env.reward_system))
 
 
 # logging reward, loss and epsilon to tensorboard
@@ -114,11 +131,6 @@ for episode in range(max_episode):
         # Render game
         if env.render_enabled:
             env.render(total_reward, framerate=framerate)
-
-        # Calcutate next states
-        if env.held_shape == None:
-            env.hold_shape()
-            env._new_piece()
 
         if run_hold:
             next_states = env.merge_next_states()
@@ -167,6 +179,11 @@ for episode in range(max_episode):
     episodes.append(episode)
     rewards.append(total_reward)
 
+    if len(interval_reward) <= print_interval:
+        interval_reward.append(total_reward)
+    else:
+        interval_reward = []
+
     # Check if episode was a highscore
     if total_reward > highscore:
         highscore = total_reward
@@ -184,8 +201,11 @@ for episode in range(max_episode):
 
     # Print training data
     if episode % print_interval == 0:
-        print("Running episode " + str(episode))
-        print("Total reward: " + str(total_reward))
+        print(f"Running episode {str(episode)}")
+        print(f"Epsilon:  {str(agent.epsilon)}")
+        print(f"Mean reward:  {str(np.mean(interval_reward))}")
+        print(f"Round Highscore: {str(max(interval_reward))}")
+        print(f"Training Highscore: {str(highscore)}")
 
 # Close pygame
 pygame.quit()
