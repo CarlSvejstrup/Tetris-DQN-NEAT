@@ -21,7 +21,7 @@ import numpy as np
 pygame.init()
 
 # Initializing pygame window
-width, height = 300, 700
+width, height = 250, 625
 screen = pygame.display.set_mode((width, height))
 
 # set seed
@@ -41,9 +41,9 @@ print_interval = 10
 interval_reward = []
 
 framerate = 2
-save_log = True
+save_log = False
 log_name = "server_test1"
-save_model = True
+save_model = False
 model_name = 'hold_test1'
 exit_program = False
 run_hold = True
@@ -79,6 +79,7 @@ agent = Agent(
 
 episodes = []
 rewards = []
+tetris_clear_list = []
 current_max = 0
 highscore = 0
 
@@ -101,10 +102,10 @@ if save_log:
 # logging reward, loss and epsilon to tensorboard
 def logging():
     writer.add_scalar("Total Reward", total_reward, episode)
-    writer.add_scalar("Epsilon", agent.epsilon_list[-1], episode)
-
     if agent.losses:
         writer.add_scalar("Loss", agent.losses[-1], episode)
+    writer.add_scalar('Number of Tetris Clears', env.tetris_clear, episode)
+    writer.add_scalar("Epsilon", agent.epsilon_list[-1], episode)
 
 
 for episode in range(max_episode):
@@ -114,6 +115,7 @@ for episode in range(max_episode):
     total_reward = 0
     render_enabled = True
     env.held_shape = None
+    env.tetris_clear = 0
 
     while not done and steps < max_steps:
         # Key controls for the training session
@@ -175,11 +177,7 @@ for episode in range(max_episode):
     # Monitor reward and episodes
     episodes.append(episode)
     rewards.append(total_reward)
-
-    if len(interval_reward) <= print_interval:
-        interval_reward.append(total_reward)
-    else:
-        interval_reward = []
+    tetris_clear_list.append(env.tetris_clear)
 
     # Save the model if it achieves a higher total reward than the current maximum
     if total_reward > max_reward and total_reward > highscore:
@@ -199,11 +197,14 @@ for episode in range(max_episode):
 
     # Print training data
     if episode % print_interval == 0:
+        print("-" * 30)
         print(f"Running episode {str(episode)}")
         print(f"Epsilon:  {str(agent.epsilon)}")
-        print(f"Mean reward:  {str(np.mean(interval_reward))}")
-        print(f"Round Highscore: {str(max(interval_reward))}")
+        print(f"Mean reward:  {str(np.mean(rewards[-print_interval:]))}")
+        print(f"Round Highscore: {str(max(rewards[-print_interval:]))}")
         print(f"Training Highscore: {str(highscore)}")
+        print(f"Round 'retris-clear' highscore:{str(max(tetris_clear_list[-print_interval:]))}")
+        print(f"'retris-clear' highscore:{str(max(tetris_clear_list))}")
 
 # Close pygame
 pygame.quit()
