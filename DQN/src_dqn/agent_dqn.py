@@ -6,9 +6,20 @@ import random
 import sys
 from collections import deque
 
+seed = 42
+
+# Set seed for random library
+random.seed(seed)
+
+# Set seed for numpy
+np.random.seed(seed)
+
+# Set seed for PyTorch
+torch.manual_seed(seed)
+
 
 class QNetwork(nn.Module):
-    def __init__(self, state_size):
+    def __init__(self, state_size, seed):
         super(QNetwork, self).__init__()
         self.fc1 = nn.Linear(state_size, 64)
         self.fc2 = nn.Linear(64, 64)
