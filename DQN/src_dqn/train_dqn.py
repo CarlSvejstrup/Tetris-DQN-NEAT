@@ -37,10 +37,10 @@ max_reward = 500000
 print_interval = 10
 interval_reward = []
 
-framerate = 100
-save_log = True
+framerate = 2
+save_log = False
 log_name = "hold_test_2_r1"
-save_model = True
+save_model = False
 exit_program = False
 run_hold = True
 
