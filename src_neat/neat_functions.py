@@ -5,8 +5,8 @@ import numpy as np
 import pickle
 import sys
 import random
-random.seed(42)
-Draw = True
+Draw = False
+max_score = 100_000_000
 
 # skift directory for at kunne importere Tetris fra tetris_engine
 current_dir = os.path.dirname(os.path.realpath(__file__))
@@ -29,9 +29,14 @@ class Tetris_game:
             
             reward, done = self.make_move(net)
             genome.fitness += reward
+            
             if self.draw:
                 self.game.render1(genome.fitness, framerate=60)
-                        
+            
+            if genome.fitness > max_score:
+                genome.fitness = max_score + 100_000 * self.game.tetris_amount
+                done = True
+                
             if done:
                 break
         
@@ -49,21 +54,20 @@ class Tetris_game:
         return self.game.step(best_action)
 
 def eval_genomes(genomes, config):
-    """if Draw:
+    if Draw:
         pygame.init()
         width, height = 300, 700
-        pygame.display.set_mode((width, height))"""
+        pygame.display.set_mode((width, height))
 
     for (genome_id, genome) in genomes:
         
         tetris = Tetris_game()
         tetris.train_ai(genome=genome, config=config)
-    """if Draw:
-        pygame.quit()"""
-
-def run_neat(config):
     if Draw:
-        pygame.init()
+        pygame.quit()
+
+def run_neat(config, seed=random.randint(1,1_000_000)):
+    random.seed(seed)
     #p = neat.Checkpointer.restore_checkpoint('src_neat/checkpoint_neat/neat-checkpoint-43')
     p = neat.Population(config)
     p.add_reporter(neat.StdOutReporter(True))
@@ -71,8 +75,30 @@ def run_neat(config):
     p.add_reporter(stats)
     p.add_reporter(neat.Checkpointer(10, filename_prefix='src_neat/checkpoint_neat/neat-checkpoint-'))
 
-    winner = p.run(eval_genomes, 500_000)
+    winner = p.run(eval_genomes, 50)
     with open("best.pickle", "wb") as f:
         pickle.dump(winner, f)
 
 
+def test_ai(config, out, make_video=False):
+    with open("best.pickle", "rb") as f:
+        winner = pickle.load(f)
+    winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
+    tetris = Tetris_game()
+    score = 0
+    while True:
+            
+        reward, done = tetris.make_move(winner_net)
+        score += reward
+
+        if make_video:
+            frame = tetris.game.render_save_video(score)
+            out.write(frame)
+
+        
+        elif Draw:
+            tetris.game.render1(score, framerate=60)
+                    
+        if done:
+            return score
+        
