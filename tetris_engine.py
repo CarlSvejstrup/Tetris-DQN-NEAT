@@ -126,8 +126,7 @@ class Tetris:
 
     def reward_function(self):
         cleared_lines = self._clear_lines()
-        # step_reward = cleared_lines**3 * self.width + self.soft_count
-
+        #return cleared_lines**3 * self.width + 1
         if cleared_lines == 1:
             return 40 + self.soft_count
         elif cleared_lines == 2:
@@ -139,6 +138,8 @@ class Tetris:
         return self.soft_count
 
     def step(self, action):
+        if action[2]:
+            self.shape, self.anchor, self.held_shape, self.held_anchor = self.held_shape, self.held_anchor, self.shape, self.anchor
         pos = [action[0], 0]
 
         # Rotate shape n times
@@ -263,6 +264,7 @@ class Tetris:
         if self.held_shape == None:
             self.held_shape, self.held_anchor = self.shape, self.anchor
             self._new_piece
+        
         next_state = self.get_next_states(self.shape, self.anchor, held=False)
         if self.shape != self.held_shape:
             next_state_held = self.get_next_states(
@@ -285,7 +287,7 @@ class Tetris:
     def toggle_render(self):
         self.render_enabled = not self.render_enabled
 
-    def render(self, score, framerate=1):
+    def render(self, score, framerate=None):
         if self.render_enabled:
             self._set_piece(True, self.shape, self.anchor)
             board = self.board[:].T
@@ -349,13 +351,11 @@ class Tetris:
             pygame.display.get_surface().blit(pygame_img, (0, 0))
 
             # Use Pygame clock to control frame rate
-            pygame.time.Clock().tick(framerate)
+            if framerate is not None:
+                pygame.time.Clock().tick(framerate)
 
             # Update display
             pygame.display.flip()
-
-            # Wait for a short time to allow other events to be handled
-            pygame.time.wait(1)
 
     def render1(self, score, framerate=1):
         if self.render_enabled:

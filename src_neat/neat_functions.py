@@ -4,39 +4,23 @@ import os
 import numpy as np
 import pickle
 import sys
+import random
+random.seed(42)
+Draw = True
 
-# Get the current script's directory
+# skift directory for at kunne importere Tetris fra tetris_engine
 current_dir = os.path.dirname(os.path.realpath(__file__))
-
-# Construct the path to the directory containing your_functions.py
 project_dir = os.path.join(current_dir, "..")
-
-# Add the project directory to the Python path
 sys.path.append(project_dir)
-
-# Now you can import functions from your_functions.py
 from tetris_engine import Tetris
 
-
-pygame.init()
-shapes_to_index = {
-    "[(0, 0), (-1, 0), (1, 0), (0, -1)]" : 0,
-    "[(0, 0), (-1, 0), (0, -1), (0, -2)]": 1,
-    "[(0, 0), (1, 0), (0, -1), (0, -2)]": 2,
-    "[(0, 0), (-1, 0), (0, -1), (1, -1)]": 3,
-    "[(0, 0), (-1, -1), (0, -1), (1, 0)]": 4,
-    "[(0, 0), (0, -1), (0, -2), (0, -3)]": 5,
-    "[(0, 0), (0, -1), (-1, 0), (-1, -1)]": 6,
-}
-
 class Tetris_game:
-    def __init__(self, draw = False) -> None:
+    def __init__(self) -> None:
         self.game = Tetris(10, 20)
-        self.draw = draw
+        self.draw = Draw
                     
 
     def train_ai(self, genome, config):
-        lines_to_clear = 10
         net = neat.nn.FeedForwardNetwork.create(genome, config)
         
         genome.fitness = 0
@@ -46,18 +30,11 @@ class Tetris_game:
             reward, done = self.make_move(net)
             genome.fitness += reward
             if self.draw:
-                self.game.render(genome.fitness)
+                self.game.render1(genome.fitness, framerate=60)
                         
-            if done or genome.fitness == 10000:
-                genome.fitness = float(genome.fitness)
+            if done:
                 break
         
-    
-    def get_fitness(self, info):
-        weight_lines = 50
-        
-        return int(sum(info["statistics"].values()) + weight_lines * info["lines_cleared"])
-    
     def make_move(self, net):
         best_action = None
         best_value = None
@@ -70,40 +47,31 @@ class Tetris_game:
                 best_value = output
                 best_action = action
         return self.game.step(best_action)
-        
-    
-    def get_input(self, board):
-        heights = []
-        holes = []
-        for collum in board:
-            if 1 in collum:
-                heights.append(20 - np.where(collum == 1)[0][0])
-                
-            else:
-                heights.append(0)
-            
-            holes.append(heights[-1] - np.sum(collum))
-        
-        input_result = heights + holes
-        return input_result
-    
 
 def eval_genomes(genomes, config):
-    
+    """if Draw:
+        pygame.init()
+        width, height = 300, 700
+        pygame.display.set_mode((width, height))"""
+
     for (genome_id, genome) in genomes:
         
-        tetris = Tetris_game(draw=False)
+        tetris = Tetris_game()
         tetris.train_ai(genome=genome, config=config)
+    """if Draw:
+        pygame.quit()"""
 
 def run_neat(config):
-    #p = neat.Checkpointer.restore_checkpoint('checkpoint/neat-checkpoint-49')
+    if Draw:
+        pygame.init()
+    #p = neat.Checkpointer.restore_checkpoint('src_neat/checkpoint_neat/neat-checkpoint-43')
     p = neat.Population(config)
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    p.add_reporter(neat.Checkpointer(50, filename_prefix='src/checkpoint_neat/neat-checkpoint-'))
+    p.add_reporter(neat.Checkpointer(10, filename_prefix='src_neat/checkpoint_neat/neat-checkpoint-'))
 
-    winner = p.run(eval_genomes, 500)
+    winner = p.run(eval_genomes, 500_000)
     with open("best.pickle", "wb") as f:
         pickle.dump(winner, f)
 
