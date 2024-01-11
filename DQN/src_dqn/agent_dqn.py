@@ -28,7 +28,8 @@ class QNetwork(nn.Module):
 class Agent:
     def __init__(
         self,
-        state_size,
+        state_size: int,
+        seed: int,
         memory_size=100000,
         discount=0.99,
         epsilon_min=0.1,
@@ -54,6 +55,7 @@ class Agent:
         self.episodes_per_update = episodes_per_update
         self.replay_start = replay_start
         self.learning_rate = learning_rate
+        self.seed = random.seed(seed)
 
         self.model = QNetwork(state_size)
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
@@ -89,7 +91,9 @@ class Agent:
         ):
             batch = random.sample(self.memory, self.batch_size)
 
-            next_states = torch.tensor(np.array([s[1] for s in batch]), dtype=torch.float32)
+            next_states = torch.tensor(
+                np.array([s[1] for s in batch]), dtype=torch.float32
+            )
 
             # print(f'next_states: {next_states}')
             next_qvalue = self.model(next_states).detach().numpy()

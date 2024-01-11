@@ -5,6 +5,7 @@ import concurrent.futures
 import multiprocessing
 import pygame
 
+
 shapes = {
     "T": [(0, 0), (-1, 0), (1, 0), (0, -1)],
     "J": [(0, 0), (-1, 0), (0, -1), (0, -2)],
@@ -62,11 +63,12 @@ def hard_drop(shape, anchor, board):
 
 
 class Tetris:
-    def __init__(self, width, height):
+    def __init__(self, width, height, seed):
         self.width = width
         self.height = height
         self.board = np.zeros(shape=(width, height), dtype=np.float64)
         self.render_enabled = True
+        self.seed = seed
 
         # State size (Clearede lines, bumpiness, holes, height)
         self.state_size = 4

@@ -24,8 +24,11 @@ pygame.init()
 width, height = 300, 700
 screen = pygame.display.set_mode((width, height))
 
+# set seed
+seed = 12
+
 # Initialize tetris environment
-env = Tetris(10, 20)
+env = Tetris(10, 20, seed)
 
 # Initialize training variables
 max_episode = 4000
@@ -70,6 +73,7 @@ agent = Agent(
     episodes_per_update=1,
     replay_start=3000,
     learning_rate=0.001,
+    seed=seed
 )
 
 episodes = []
