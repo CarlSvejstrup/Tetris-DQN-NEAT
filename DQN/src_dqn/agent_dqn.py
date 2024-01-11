@@ -19,7 +19,7 @@ torch.manual_seed(seed)
 
 
 class QNetwork(nn.Module):
-    def __init__(self, state_size, seed):
+    def __init__(self, state_size):
         super(QNetwork, self).__init__()
         self.fc1 = nn.Linear(state_size, 64)
         self.fc2 = nn.Linear(64, 64)

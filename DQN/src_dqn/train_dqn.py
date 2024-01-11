@@ -41,9 +41,9 @@ print_interval = 10
 interval_reward = []
 
 framerate = 2
-save_log = False
-log_name = "hold_test_2_r1"
-save_model = False
+save_log = True
+log_name = "server_test1"
+save_model = True
 exit_program = False
 run_hold = True
 
@@ -73,7 +73,7 @@ agent = Agent(
     episodes_per_update=1,
     replay_start=3000,
     learning_rate=0.001,
-    seed=seed
+    seed=seed,
 )
 
 episodes = []
