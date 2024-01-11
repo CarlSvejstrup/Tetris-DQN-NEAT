@@ -33,7 +33,7 @@ env = Tetris(10, 20, seed)
 # Initialize training variables
 max_episode = 4000
 max_steps = 250000
-max_reward = 500000
+max_reward = 250000
 
 
 # Log parameters
@@ -41,9 +41,10 @@ print_interval = 10
 interval_reward = []
 
 framerate = 2
-save_log = False
-log_name = "hold_test_2_r1"
-save_model = False
+save_log = True
+log_name = "server_test1"
+save_model = True
+model_name = 'hold_test1'
 exit_program = False
 run_hold = True
 
@@ -73,7 +74,7 @@ agent = Agent(
     episodes_per_update=1,
     replay_start=3000,
     learning_rate=0.001,
-    seed=seed
+    seed=seed,
 )
 
 episodes = []
@@ -153,10 +154,6 @@ for episode in range(max_episode):
                 best_action = action
                 break
 
-        if best_action[2]:
-            env.shape, env.held_shape = env.held_shape, env.shape
-            env.anchor, env.held_anchor = env.held_anchor, env.anchor
-
         reward, done = env.step(best_action)
         total_reward += reward
 
@@ -184,13 +181,14 @@ for episode in range(max_episode):
     else:
         interval_reward = []
 
+    # Save the model if it achieves a higher total reward than the current maximum
+    if total_reward > max_reward and total_reward > highscore:
+        print('model_save')
+        agent.model_save(path=f"./DQN/models/{model_name}.pt")
+
     # Check if episode was a highscore
     if total_reward > highscore:
         highscore = total_reward
-
-    # Save the model if it achieves a higher total reward than the current maximum
-    if total_reward > max_reward and total_reward > highscore:
-        agent.model_save(path=f"DQN/models/{str(highscore)}.pt")
 
     # Train model
     agent.replay(episode=episode)
