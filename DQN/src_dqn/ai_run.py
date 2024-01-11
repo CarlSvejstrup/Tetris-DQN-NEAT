@@ -45,7 +45,7 @@ print_interval = 10
 
 
 if log_evaluation:
-    log_dir = "evaluation/" + log_name
+    log_dir = "./DQN/evaluation/" + log_name
     writer = SummaryWriter(log_dir=log_dir)
 
 

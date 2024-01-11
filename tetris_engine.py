@@ -78,6 +78,7 @@ class Tetris:
         self.anchor = None
         self.shape = None
         self.reward_system = 1
+        self.tetris_clear = 0
 
         # Holding a piece
         self.held_shape = None
@@ -157,7 +158,12 @@ class Tetris:
 
     def step(self, action):
         if action[2]:
-            self.shape, self.anchor, self.held_shape, self.held_anchor = self.held_shape, self.held_anchor, self.shape, self.anchor
+            self.shape, self.anchor, self.held_shape, self.held_anchor = (
+                self.held_shape,
+                self.held_anchor,
+                self.shape,
+                self.anchor,
+            )
         pos = [action[0], 0]
 
         # Rotate shape n times
