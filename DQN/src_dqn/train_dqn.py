@@ -21,7 +21,7 @@ import numpy as np
 pygame.init()
 
 # Initializing pygame window
-width, height = 300, 700
+width, height = 250, 625
 screen = pygame.display.set_mode((width, height))
 
 # set seed
@@ -199,6 +199,7 @@ for episode in range(max_episode):
 
     # Print training data
     if episode % print_interval == 0:
+        print("-" * 30)
         print(f"Running episode {str(episode)}")
         print(f"Epsilon:  {str(agent.epsilon)}")
         print(f"Mean reward:  {str(np.mean(interval_reward))}")
