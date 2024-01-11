@@ -1,5 +1,5 @@
-Python
-Torch
+python
+torch
 numpy
 pygame
-Tensorboard
+tensorboard
