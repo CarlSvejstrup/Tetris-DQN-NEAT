@@ -15,7 +15,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 pygame.init()
 
-seed = 50
+seed = 44
 env = Tetris(10, 20, seed)
 agent = Agent(env.state_size, seed=seed)
 
@@ -32,16 +32,17 @@ model.eval()
 max_episodes = 100
 episodes = []
 rewards = []
+tetris_clear_list = []
 current_max = 0
 interval_reward = []
 highscore = 0
 exit_program = False
 
 log_evaluation = True
-log_name = "server_test1"
-framerate = 20
+log_name = "model1"
+framerate = 10
 run_hold = True
-print_interval = 10
+print_interval = 1
 
 
 if log_evaluation:
@@ -57,6 +58,8 @@ for episode in range(max_episodes):
     current_state = env.reset()
     done = False
     total_reward = 0
+    env.tetris_amount = 0
+    start_time = time.time()
 
     while not done:
         for event in pygame.event.get():
@@ -100,6 +103,15 @@ for episode in range(max_episodes):
 
         current_state = next_states[best_action]
 
+    end_time = time.time()
+    elapsed_time_seconds = end_time - start_time
+    if elapsed_time_seconds < 60:
+        seconds = round(elapsed_time_seconds, 2)
+        minutes = 0
+    else:
+        minutes = int(elapsed_time_seconds // 60)
+        seconds = int(elapsed_time_seconds % 60)
+
     if exit_program:
         break
 
@@ -108,20 +120,21 @@ for episode in range(max_episodes):
 
     episodes.append(episode)
     rewards.append(total_reward)
-
-    if len(interval_reward) <= print_interval:
-        interval_reward.append(total_reward)
-    else:
-        interval_reward = []
+    tetris_clear_list.append(env.tetris_amount)
 
     if total_reward > highscore:
         highscore = total_reward
 
+    # Print training data
     if episode % print_interval == 0:
-        print(f"Running episode {str(episode)}")
-        print(f"Mean reward:  {str(np.mean(interval_reward))}")
-        print(f"Round Highscore: {str(max(interval_reward))}")
+        print("-" * 30)
+        print(f"Running episode {str(episode + 1)}")
+        print(f"Mean reward:  {str(np.mean(rewards[-print_interval:]))}")
+        print(f"Round Highscore: {str(max(rewards[-print_interval:]))}")
         print(f"Training Highscore: {str(highscore)}")
+        print(f"Round 'tetris-clear' highscore:{str(max(tetris_clear_list[-print_interval:]))}")
+        print(f"'tetris-clear' highscore:{str(max(tetris_clear_list))}")
+        print(f'episodetime: {minutes} minutes, {seconds} seconds')
 
 
 pygame.quit()

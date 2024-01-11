@@ -1,4 +1,5 @@
 Python
 Torch
 numpy
+pygame
 Tensorboard

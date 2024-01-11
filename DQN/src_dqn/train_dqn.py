@@ -44,7 +44,7 @@ framerate = 2
 save_log = False
 log_name = "server_test1"
 save_model = False
-model_name = 'hold_test1'
+model_name = "hold_test1"
 exit_program = False
 run_hold = True
 
@@ -104,7 +104,7 @@ def logging():
     writer.add_scalar("Total Reward", total_reward, episode)
     if agent.losses:
         writer.add_scalar("Loss", agent.losses[-1], episode)
-    writer.add_scalar('Number of Tetris Clears', env.tetris_clear, episode)
+    writer.add_scalar("Number of Tetris Clears", env.tetris_amount, episode)
     writer.add_scalar("Epsilon", agent.epsilon_list[-1], episode)
 
 
@@ -115,7 +115,7 @@ for episode in range(max_episode):
     total_reward = 0
     render_enabled = True
     env.held_shape = None
-    env.tetris_clear = 0
+    env.tetris_amount = 0
 
     while not done and steps < max_steps:
         # Key controls for the training session
@@ -177,11 +177,11 @@ for episode in range(max_episode):
     # Monitor reward and episodes
     episodes.append(episode)
     rewards.append(total_reward)
-    tetris_clear_list.append(env.tetris_clear)
+    tetris_clear_list.append(env.tetris_amount)
 
     # Save the model if it achieves a higher total reward than the current maximum
     if total_reward > max_reward and total_reward > highscore:
-        print('model_save')
+        print("model_save")
         agent.model_save(path=f"./DQN/models/{model_name}.pt")
 
     # Check if episode was a highscore
@@ -203,7 +203,9 @@ for episode in range(max_episode):
         print(f"Mean reward:  {str(np.mean(rewards[-print_interval:]))}")
         print(f"Round Highscore: {str(max(rewards[-print_interval:]))}")
         print(f"Training Highscore: {str(highscore)}")
-        print(f"Round 'retris-clear' highscore:{str(max(tetris_clear_list[-print_interval:]))}")
+        print(
+            f"Round 'retris-clear' highscore:{str(max(tetris_clear_list[-print_interval:]))}"
+        )
         print(f"'retris-clear' highscore:{str(max(tetris_clear_list))}")
 
 # Close pygame
