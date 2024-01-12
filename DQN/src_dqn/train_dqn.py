@@ -14,11 +14,6 @@ from torch.utils.tensorboard import SummaryWriter
 import numpy as np
 
 
-## TODO
-# Seed setup
-# Server setup
-# Hyperprameters
-
 pygame.init()
 
 # Initializing pygame window
@@ -34,7 +29,7 @@ env = Tetris(10, 20, seed)
 # Initialize training variables
 max_episode = 4_000
 max_reward = 50_000_000
-reward_save = 250_000
+reward_save = 1_000_000
 max_time_duration = sys.maxsize
 
 
@@ -223,7 +218,7 @@ if save_log:
 
 print("#" * 30)
 print("Time limit reached. Ending training")
-print(f"Time training: {str(max_time_duration)} seconds")
+print(f"Time training: {str(time.time() - start_time)} seconds")
 print(f"Last episode: {str(episode)}")
 print(f"Training Highscore: {str(highscore)}")
 print(f"'tetris-clear' highscore: {str(max(tetris_clear_list))}")
