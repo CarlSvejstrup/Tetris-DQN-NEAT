@@ -33,8 +33,8 @@ env = Tetris(10, 20, seed)
 
 # Initialize training variables
 max_episode = 4000
-max_steps = 250000
-max_reward = 250000
+max_reward = 300
+reward_save = 250_000
 max_time_duration = sys.maxsize
 
 
@@ -43,7 +43,7 @@ print_interval = 10
 interval_reward = []
 
 framerate = 100  # sys.maxsize
-save_log = True
+save_log = False
 log_name = "testing_steps"
 save_model = False
 model_name = "hold_test2"
@@ -121,7 +121,7 @@ for episode in range(max_episode):
     env.held_shape = None
     env.tetris_amount = 0
 
-    while not done and steps < max_steps:
+    while not done and total_reward < max_reward:
         # Key controls for the training session
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
@@ -131,9 +131,6 @@ for episode in range(max_episode):
                     exit_program = True
                 if event.type == pygame.QUIT:
                     exit_program = True
-
-        if exit_program:
-            break
 
         # Render game
         if env.render_enabled:
@@ -171,8 +168,19 @@ for episode in range(max_episode):
 
         steps += 1
 
-    if exit_program:
-        break
+        if exit_program:
+            break
+
+    # Train model
+    agent.replay(episode=episode)
+
+    # Epsilon decay
+    if agent.epsilon > agent.epsilon_min:
+        agent.epsilon -= agent.epsilon_decay
+
+    # Check if episode was a highscore
+    if total_reward > highscore:
+        highscore = total_reward
 
     # logs data to tensorboard
     if save_log:
@@ -184,20 +192,9 @@ for episode in range(max_episode):
     tetris_clear_list.append(env.tetris_amount)
 
     # Save the model if it achieves a higher total reward than the current maximum
-    if total_reward > max_reward and total_reward > highscore:
+    if total_reward > reward_save and total_reward > highscore:
         print("model_save")
         agent.model_save(path=f"./DQN/models/{model_name}.pt")
-
-    # Check if episode was a highscore
-    if total_reward > highscore:
-        highscore = total_reward
-
-    # Train model
-    agent.replay(episode=episode)
-
-    # Epsilon decay
-    if agent.epsilon > agent.epsilon_min:
-        agent.epsilon -= agent.epsilon_decay
 
     # Print training data
     if episode % print_interval == 0:
@@ -212,7 +209,12 @@ for episode in range(max_episode):
         )
         print(f"'tetris-clear' highscore:{str(max(tetris_clear_list))}")
 
-    if time.time() - start_time > max_time_duration:
+    # Break after a given time if max_time_duation is given
+    if max_time_duration:
+        if time.time() - start_time > max_time_duration:
+            break
+
+    if exit_program:
         break
 
 # Close tensorboard
