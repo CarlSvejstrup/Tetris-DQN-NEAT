@@ -1,8 +1,8 @@
-#BSUB -J dqn_run1
-#BSUB -o dqn_run1%J.out
-#BSUB -e dqn_run1%J.err
+#BSUB -J dqn_run_test
+#BSUB -o dqn_run_test%J.out
+#BSUB -e dqn_run_test%J.err
 #BSUB -n 4
-#BSUB -q gpuv100
+#BSUB -q gpuv10
 #BSUB -gpu "num=1:mode=exclusive_process"
 #BSUB -R "rusage[mem=8G]"
 #BSUB -R "span[hosts=1]"
