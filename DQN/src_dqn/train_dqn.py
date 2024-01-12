@@ -32,8 +32,8 @@ seed = 12
 env = Tetris(10, 20, seed)
 
 # Initialize training variables
-max_episode = 4000
-max_reward = 300
+max_episode = 4_000
+max_reward = 50_000_000
 reward_save = 250_000
 max_time_duration = sys.maxsize
 
@@ -42,7 +42,7 @@ max_time_duration = sys.maxsize
 print_interval = 10
 interval_reward = []
 
-framerate = 100  # sys.maxsize
+framerate = 10  # sys.maxsize
 save_log = False
 log_name = "testing_steps"
 save_model = False
@@ -68,13 +68,13 @@ Reward = cleared_lines**2 * self.width + 1
 # Initializing agent
 agent = Agent(
     env.state_size,
-    memory_size=30000,
+    memory_size=30_000,
     discount=0.98,
     epsilon_min=0.001,
-    epsilon_end_episode=3000,
+    epsilon_end_episode=3_000,
     batch_size=512,
     episodes_per_update=1,
-    replay_start=3000,
+    replay_start=3_000,
     learning_rate=0.001,
     seed=seed,
 )
