@@ -1,6 +1,6 @@
-#BSUB -J jobnam
-#BSUB -o jobname%J.out
-#BSUB -e jobname%J.err
+#BSUB -J test_1
+#BSUB -o test_1%J.out
+#BSUB -e test_1_err%J.err
 #BSUB -n 4
 #BSUB -q gpuv100
 #BSUB -gpu "num=1:mode=exclusive_process"
