@@ -106,9 +106,7 @@ class Agent:
                 np.array([s[1] for s in batch]), dtype=torch.float32
             )
 
-            # print(f'next_states: {next_states}')
             next_qvalue = self.model(next_states).detach().numpy()
-            # print(f'next q_values: {next_qvalue}')
 
             x = []
             y = []

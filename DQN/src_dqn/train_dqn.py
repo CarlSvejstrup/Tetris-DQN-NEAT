@@ -12,18 +12,20 @@ import pygame
 from torch.utils.tensorboard import SummaryWriter
 import numpy as np
 
-
-pygame.init()
-
-# Initializing pygame window
-width, height = 250, 625
-screen = pygame.display.set_mode((width, height))
-
 # set seed
 seed = 12
 
 # Initialize tetris environment
 env = Tetris(10, 20, seed)
+
+
+# Initializing pygame window
+pygame_open = False
+if pygame_open:
+    pygame.init()
+
+    width, height = 250, 625
+    screen = pygame.display.set_mode((width, height))
 
 # Initialize training variables
 max_episode = 4_000
@@ -37,6 +39,8 @@ print_interval = 10
 interval_reward = []
 
 framerate = 1  # sys.maxsize
+run_hold = True
+
 save_log = False
 log_name = "testing_steps"
 save_model = False
@@ -79,6 +83,7 @@ tetris_clear_list = []
 current_max = 0
 highscore = 0
 start_time = time.time()
+exit_program = False
 
 # Creating log writer
 if save_log:
@@ -117,17 +122,18 @@ for episode in range(max_episode):
 
     while not done and total_reward < max_reward:
         # Key controls for the training session
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_r:
-                    env.toggle_render()  # Toggle render state with 'r'
-                if event.key == pygame.K_q:
-                    exit_program = True
-                if event.type == pygame.QUIT:
-                    exit_program = True
+        if pygame_open:
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_r:
+                        env.toggle_render()  # Toggle render state with 'r'
+                    if event.key == pygame.K_q:
+                        exit_program = True
+                    if event.type == pygame.QUIT:
+                        exit_program = True
 
         # Render game
-        if env.render_enabled:
+        if env.render_enabled and pygame_open:
             env.render(total_reward, framerate=framerate)
 
         if run_hold:
@@ -223,4 +229,5 @@ print(f"Training Highscore: {str(highscore)}")
 print(f"'tetris-clear' highscore: {str(max(tetris_clear_list))}")
 
 # Close pygame
-pygame.quit()
+if pygame_open:
+    pygame.quit()

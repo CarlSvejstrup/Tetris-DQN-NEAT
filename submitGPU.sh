@@ -13,7 +13,7 @@
 #BSUB -N
 # end of BSUB options
 
-module load python3/3.11.3
+module load python3/3.11.5
 module load cuda/12.1
 
 source tetris_temp_env/bin/activate
