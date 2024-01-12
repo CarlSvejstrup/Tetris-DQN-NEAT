@@ -1,8 +1,8 @@
-#BSUB -J new_test1
-#BSUB -o new_test1%J.out
-#BSUB -e new_test1%J.err
+#BSUB -J changed_test1
+#BSUB -o changed_test1%J.out
+#BSUB -e changed_test1%J.err
 #BSUB -n 4
-#BSUB -q gpuv100
+#BSUB -q gpua10
 #BSUB -gpu "num=1:mode=exclusive_process"
 #BSUB -R "rusage[mem=8G]"
 #BSUB -R "span[hosts=1]"

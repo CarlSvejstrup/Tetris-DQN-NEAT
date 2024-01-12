@@ -22,7 +22,7 @@ agent = Agent(env.state_size, seed=seed)
 width, height = 250, 625
 screen = pygame.display.set_mode((width, height))
 
-model_name = "hold_test2"
+model_name = "hold_test1"
 model_path = f"DQN/models/{model_name}.pt"
 
 model = QNetwork(env.state_size)
