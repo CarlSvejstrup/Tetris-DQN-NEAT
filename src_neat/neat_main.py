@@ -9,4 +9,4 @@ config = neat.Config(neat.DefaultGenome,
                      neat.DefaultStagnation,
                      config_path)
 
-run_neat(config)
+run_neat(config=config)

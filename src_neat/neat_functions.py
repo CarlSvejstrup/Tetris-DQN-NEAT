@@ -8,7 +8,7 @@ import random
 import cv2 as cv
 
 draw = False
-max_score = 25_000_000
+max_score = 50_000_000
 tetris_bonus = 1_000
 
 # skift directory for at kunne importere Tetris fra tetris_engine
@@ -21,7 +21,7 @@ class Tetris_game:
     def __init__(self) -> None:
         self.game = Tetris(10, 20)            
 
-    def train_ai(self, genome, config):
+    def train_ai(self, genome, config) -> None:
         net = neat.nn.FeedForwardNetwork.create(genome, config)
         
         genome.fitness = 0
@@ -35,14 +35,14 @@ class Tetris_game:
                 self.game.render1(genome.fitness, framerate=60)
             
             if genome.fitness > max_score:
-                genome.fitness = genome.fitness + tetris_bonus * self.game.tetris_amount
+                genome.fitness = genome.fitness + tetris_bonus * self.game.tetris_clear
                 done = True
                 
             if done:
                 genome.fitness = int(genome.fitness)
                 break
         
-    def make_move(self, net, with_held=True):
+    def make_move(self, net, with_held=False):
         best_action = None
         best_value = None
         
@@ -111,14 +111,14 @@ def test_ai(config, out, test_draw):
 
 def run_neat(config, seed=random.randint(1,1_000_000)):
     random.seed(seed)
-    p = neat.Checkpointer.restore_checkpoint('src_neat/checkpoint_neat/neat-checkpoint-23')
-    #p = neat.Population(config)
+    #p = neat.Checkpointer.restore_checkpoint('src_neat/checkpoint_neat/neat-checkpoint-23')
+    p = neat.Population(config)
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
     p.add_reporter(neat.Checkpointer(5, filename_prefix='src_neat/checkpoint_neat/neat-checkpoint-'))
 
-    winner = p.run(eval_genomes, 100_000)
+    winner = p.run(eval_genomes, int(10_000/50))
     with open("best.pickle", "wb") as f:
         pickle.dump(winner, f)
 

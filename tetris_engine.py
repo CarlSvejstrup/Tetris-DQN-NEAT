@@ -13,6 +13,7 @@ shapes = {
     "I": [(0, 0), (0, -1), (0, -2), (0, -3)],
     "O": [(0, 0), (0, -1), (-1, 0), (-1, -1)],
 }
+
 shape_names = ["T", "J", "L", "Z", "S", "I", "O"]
 green = (156, 204, 101)
 black = (0, 0, 0)
@@ -66,7 +67,6 @@ class Tetris:
         self.width = width
         self.height = height
         self.board = np.zeros(shape=(width, height), dtype=np.float64)
-        self.board_rgb = np.zeros(shape=(width, height), dtype=np.float64)
         self.render_enabled = True
         self.seed = seed
 
@@ -86,9 +86,6 @@ class Tetris:
 
         # Used for generating shapes
         self._shape_counts = [0] * len(shapes)
-
-        # counting amount of times 4 lines are cleared
-        self.tetris_amount = 0
 
         # Reset after initializing
         self.reset()
@@ -150,7 +147,7 @@ class Tetris:
             elif cleared_lines == 3:
                 return 300 + self.soft_count
             elif cleared_lines == 4:
-                self.tetris_amount += 1
+                self.tetris_clear += 1
                 return 1200 + self.soft_count
             return self.soft_count
 
@@ -204,6 +201,8 @@ class Tetris:
         self.score = 0
         self._new_piece()
         self.board = np.zeros_like(self.board)
+        self.held_shape = None
+        self.anchor = None
 
         return np.array([0 for _ in range(self.state_size)])
 

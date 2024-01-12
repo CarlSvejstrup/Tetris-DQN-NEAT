@@ -1,6 +1,7 @@
 from neat_functions import *
-
 make_video = True
+
+
 out = None
 times_to_repeat = 1
 scores = np.zeros(times_to_repeat)
