@@ -1,6 +1,5 @@
 import sys
 import os
-import csv
 
 # Get the parent directory (one level up)
 main_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -37,7 +36,7 @@ max_time_duration = sys.maxsize
 print_interval = 10
 interval_reward = []
 
-framerate = 10  # sys.maxsize
+framerate = 1  # sys.maxsize
 save_log = False
 log_name = "testing_steps"
 save_model = False
