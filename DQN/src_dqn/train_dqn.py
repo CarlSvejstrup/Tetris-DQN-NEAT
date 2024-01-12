@@ -1,5 +1,6 @@
 import sys
 import os
+import csv
 
 # Get the parent directory (one level up)
 main_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -34,17 +35,18 @@ env = Tetris(10, 20, seed)
 max_episode = 4000
 max_steps = 250000
 max_reward = 250000
+max_time_duration = sys.maxsize
 
 
 # Log parameters
 print_interval = 10
 interval_reward = []
 
-framerate = 2
-save_log = False
-log_name = "server_test1"
+framerate = 100  # sys.maxsize
+save_log = True
+log_name = "testing_steps"
 save_model = False
-model_name = "hold_test1"
+model_name = "hold_test2"
 exit_program = False
 run_hold = True
 
@@ -82,6 +84,7 @@ rewards = []
 tetris_clear_list = []
 current_max = 0
 highscore = 0
+start_time = time.time()
 
 # Creating log writer
 if save_log:
@@ -102,10 +105,11 @@ if save_log:
 # logging reward, loss and epsilon to tensorboard
 def logging():
     writer.add_scalar("Total Reward", total_reward, episode)
+    writer.add_scalar("Steps per Episode:", steps, episode)
+    writer.add_scalar("Tetris clears:", env.tetris_amount, episode)
+    writer.add_scalar("Epsilon", agent.epsilon_list[-1], episode)
     if agent.losses:
         writer.add_scalar("Loss", agent.losses[-1], episode)
-    writer.add_scalar("Number of Tetris Clears", env.tetris_amount, episode)
-    writer.add_scalar("Epsilon", agent.epsilon_list[-1], episode)
 
 
 for episode in range(max_episode):
@@ -204,15 +208,23 @@ for episode in range(max_episode):
         print(f"Round Highscore: {str(max(rewards[-print_interval:]))}")
         print(f"Training Highscore: {str(highscore)}")
         print(
-            f"Round 'retris-clear' highscore:{str(max(tetris_clear_list[-print_interval:]))}"
+            f"Round 'tetris-clear' highscore:{str(max(tetris_clear_list[-print_interval:]))}"
         )
-        print(f"'retris-clear' highscore:{str(max(tetris_clear_list))}")
+        print(f"'tetris-clear' highscore:{str(max(tetris_clear_list))}")
 
-# Close pygame
-pygame.quit()
+    if time.time() - start_time > max_time_duration:
+        break
 
 # Close tensorboard
 if save_log:
     writer.close()
 
-print(highscore)
+print("#" * 30)
+print("Time limit reached. Ending training")
+print(f"Time training: {str(max_time_duration)} seconds")
+print(f"Last episode: {str(episode)}")
+print(f"Training Highscore: {str(highscore)}")
+print(f"'tetris-clear' highscore: {str(max(tetris_clear_list))}")
+
+# Close pygame
+pygame.quit()

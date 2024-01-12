@@ -22,7 +22,7 @@ agent = Agent(env.state_size, seed=seed)
 width, height = 250, 625
 screen = pygame.display.set_mode((width, height))
 
-model_name = 'hold_test1'
+model_name = "hold_test2"
 model_path = f"DQN/models/{model_name}.pt"
 
 model = QNetwork(env.state_size)
@@ -39,10 +39,11 @@ highscore = 0
 exit_program = False
 
 log_evaluation = True
-log_name = "model1"
-framerate = 10
+log_name = "hold_test2"
+framerate = sys.maxsize
 run_hold = True
 print_interval = 1
+step = 0
 
 
 if log_evaluation:
@@ -51,8 +52,21 @@ if log_evaluation:
 
 
 def logging():
+    writer.add_scalar("Tetris clears:", env.tetris_amount, episode)
     writer.add_scalar("Total Reward", total_reward, episode)
+    writer.add_scalar("Steps per Episode:", step, episode)
 
+def timer(start_time, end_time):
+    end_time = time.time()
+    elapsed_time_seconds = end_time - start_time
+    if elapsed_time_seconds < 60:
+        seconds = round(elapsed_time_seconds, 2)
+        minutes = 0
+    else:
+        minutes = int(elapsed_time_seconds // 60)
+        seconds = int(elapsed_time_seconds % 60)
+
+    return (minutes, seconds)
 
 for episode in range(max_episodes):
     current_state = env.reset()
@@ -87,9 +101,7 @@ for episode in range(max_episodes):
 
         states = list(next_states.values())
         # Tell the agent to choose the best possible state
-        best_state = agent.act(
-            states=states, model=model, use_epsilon=False
-        )
+        best_state = agent.act(states=states, model=model, use_epsilon=False)
 
         # Grab the best tetromino position and its rotation chosen by the agent
         best_action = None
@@ -103,20 +115,15 @@ for episode in range(max_episodes):
 
         current_state = next_states[best_action]
 
-    end_time = time.time()
-    elapsed_time_seconds = end_time - start_time
-    if elapsed_time_seconds < 60:
-        seconds = round(elapsed_time_seconds, 2)
-        minutes = 0
-    else:
-        minutes = int(elapsed_time_seconds // 60)
-        seconds = int(elapsed_time_seconds % 60)
+        step += 1
 
-    if exit_program:
-        break
+    end_time = time.time()
 
     if log_evaluation:
         logging()
+
+    if exit_program:
+        break
 
     episodes.append(episode)
     rewards.append(total_reward)
@@ -132,14 +139,15 @@ for episode in range(max_episodes):
         print(f"Mean reward:  {str(np.mean(rewards[-print_interval:]))}")
         print(f"Round Highscore: {str(max(rewards[-print_interval:]))}")
         print(f"Training Highscore: {str(highscore)}")
-        print(f"Round 'tetris-clear' highscore:{str(max(tetris_clear_list[-print_interval:]))}")
+        print(
+            f"Round 'tetris-clear' highscore:{str(max(tetris_clear_list[-print_interval:]))}"
+        )
         print(f"'tetris-clear' highscore:{str(max(tetris_clear_list))}")
-        print(f'episodetime: {minutes} minutes, {seconds} seconds')
-
-
-pygame.quit()
+        print(f"episodetime: {timer(start_time, end_time)[0]} minutes, {timer(start_time, end_time)[1]} seconds")
 
 if log_evaluation:
     writer.close()
 
-print(highscore)
+print(f"Highscore: {str(highscore)}")
+print(f"'tetris-clear' highscore: {str(max(tetris_clear_list))}")
+pygame.quit()
