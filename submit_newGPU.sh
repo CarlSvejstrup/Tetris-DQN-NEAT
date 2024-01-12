@@ -2,7 +2,7 @@
 #BSUB -o test_2%J.out
 #BSUB -e test_2_err%J.err
 #BSUB -n 4
-#BSUB -q sxm2sh
+#BSUB -q gpua10
 #BSUB -gpu "num=1:mode=exclusive_process"
 #BSUB -R "rusage[mem=8G]"
 #BSUB -R "span[hosts=1]"
