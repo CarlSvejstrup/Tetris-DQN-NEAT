@@ -1,7 +1,7 @@
 #BSUB -J test_2
 #BSUB -o test_2%J.out
 #BSUB -e test_2_err%J.err
-#BSUB -n 1
+#BSUB -n 4
 #BSUB -q gpua10
 #BSUB -gpu "num=1:mode=exclusive_process"
 #BSUB -R "rusage[mem=8G]"
