@@ -28,8 +28,8 @@ if pygame_open:
     screen = pygame.display.set_mode((width, height))
 
 # Initialize training variables
-max_episode = 4_000
-max_reward = 50_000_000
+max_episode = 10_000
+max_reward = 25_000_000
 reward_save = 1_000_000
 max_time_duration = sys.maxsize
 
@@ -41,10 +41,10 @@ interval_reward = []
 framerate = 1  # sys.maxsize
 run_hold = True
 
-save_log = False
-log_name = "testing_steps"
-save_model = False
-model_name = "hold_test2"
+save_log = True
+log_name = "server_run_1"
+save_model = True
+model_name = "server_run_1"
 exit_program = False
 run_hold = True
 
