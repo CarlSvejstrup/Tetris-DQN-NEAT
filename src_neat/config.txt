@@ -1,6 +1,6 @@
 
 [NEAT]
-fitness_criterion     = mean
+fitness_criterion     = min
 fitness_threshold     = 5_000_000_000_000_000
 pop_size              = 100
 reset_on_extinction   = False

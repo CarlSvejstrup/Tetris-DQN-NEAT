@@ -10,5 +10,3 @@ config = neat.Config(neat.DefaultGenome,
                      config_path)
 
 run_neat(config)
-
-pygame.quit()

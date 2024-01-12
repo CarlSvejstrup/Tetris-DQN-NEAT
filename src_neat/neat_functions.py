@@ -5,8 +5,11 @@ import numpy as np
 import pickle
 import sys
 import random
-Draw = False
-max_score = 100_000_000
+import cv2 as cv
+
+draw = False
+max_score = 25_000_000
+tetris_bonus = 1_000
 
 # skift directory for at kunne importere Tetris fra tetris_engine
 current_dir = os.path.dirname(os.path.realpath(__file__))
@@ -16,9 +19,7 @@ from tetris_engine import Tetris
 
 class Tetris_game:
     def __init__(self) -> None:
-        self.game = Tetris(10, 20)
-        self.draw = Draw
-                    
+        self.game = Tetris(10, 20)            
 
     def train_ai(self, genome, config):
         net = neat.nn.FeedForwardNetwork.create(genome, config)
@@ -27,23 +28,31 @@ class Tetris_game:
         
         while True:
             
-            reward, done = self.make_move(net)
+            reward, done = self.make_move(net, with_held=False)
             genome.fitness += reward
             
-            if self.draw:
+            if draw:
                 self.game.render1(genome.fitness, framerate=60)
             
             if genome.fitness > max_score:
-                genome.fitness = max_score + 100_000 * self.game.tetris_amount
+                genome.fitness = genome.fitness + tetris_bonus * self.game.tetris_amount
                 done = True
                 
             if done:
+                genome.fitness = int(genome.fitness)
                 break
         
-    def make_move(self, net):
+    def make_move(self, net, with_held=True):
         best_action = None
         best_value = None
-        all_states = self.game.merge_next_states()
+        
+        # unless otherwise specified, we do not use the hold funtion, this is to speed up training since we now only need to calculate half as many states
+        # when testing our models we would ofcouse use the hold function
+        if with_held:
+            all_states = self.game.merge_next_states()
+        else:
+            all_states = self.game.get_next_states(self.game.shape, self.game.anchor, False)
+        
         
         for action, state in zip(all_states.keys(), all_states.values()):
             output = net.activate(
@@ -54,7 +63,7 @@ class Tetris_game:
         return self.game.step(best_action)
 
 def eval_genomes(genomes, config):
-    if Draw:
+    if draw:
         pygame.init()
         width, height = 300, 700
         pygame.display.set_mode((width, height))
@@ -63,42 +72,53 @@ def eval_genomes(genomes, config):
         
         tetris = Tetris_game()
         tetris.train_ai(genome=genome, config=config)
-    if Draw:
+    if draw:
         pygame.quit()
 
-def run_neat(config, seed=random.randint(1,1_000_000)):
-    random.seed(seed)
-    #p = neat.Checkpointer.restore_checkpoint('src_neat/checkpoint_neat/neat-checkpoint-43')
-    p = neat.Population(config)
-    p.add_reporter(neat.StdOutReporter(True))
-    stats = neat.StatisticsReporter()
-    p.add_reporter(stats)
-    p.add_reporter(neat.Checkpointer(10, filename_prefix='src_neat/checkpoint_neat/neat-checkpoint-'))
 
-    winner = p.run(eval_genomes, 50)
-    with open("best.pickle", "wb") as f:
-        pickle.dump(winner, f)
-
-
-def test_ai(config, out, make_video=False):
+def test_ai(config, out, test_draw):
     with open("best.pickle", "rb") as f:
         winner = pickle.load(f)
     winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
     tetris = Tetris_game()
     score = 0
+    if test_draw and out is None:
+        pygame.init()
+        width, height = 300, 700
+        pygame.display.set_mode((width, height))
     while True:
             
-        reward, done = tetris.make_move(winner_net)
+        reward, done = tetris.make_move(winner_net, with_held=True)
         score += reward
 
-        if make_video:
-            frame = tetris.game.render_save_video(score)
+        if out is not None:
+            frame = tetris.game.render_save_video(score, "Neat")
+            frame = cv.convertScaleAbs(frame)
+            frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
             out.write(frame)
 
         
-        elif Draw:
+        elif test_draw:
             tetris.game.render1(score, framerate=60)
                     
         if done:
+            if out is None:
+                out.release()
+            elif test_draw:
+                pygame.quit()
             return score
         
+
+def run_neat(config, seed=random.randint(1,1_000_000)):
+    random.seed(seed)
+    p = neat.Checkpointer.restore_checkpoint('src_neat/checkpoint_neat/neat-checkpoint-23')
+    #p = neat.Population(config)
+    p.add_reporter(neat.StdOutReporter(True))
+    stats = neat.StatisticsReporter()
+    p.add_reporter(stats)
+    p.add_reporter(neat.Checkpointer(5, filename_prefix='src_neat/checkpoint_neat/neat-checkpoint-'))
+
+    winner = p.run(eval_genomes, 100_000)
+    with open("best.pickle", "wb") as f:
+        pickle.dump(winner, f)
+

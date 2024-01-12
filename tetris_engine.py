@@ -20,14 +20,15 @@ green = (156, 204, 101)
 black = (0, 0, 0)
 white = (255, 255, 255)
 
-I = (0, 255, 255)
-O = (255, 255, 0)
-T = (128, 0, 128)
-S = (0, 255, 0)
-Z = (255, 0, 0)
-L = (0, 0, 255)
-J = (255, 127, 0)
-
+shape_color = {
+    "I", (0, 255, 255),
+    "O", (255, 255, 0),
+    "T", (128, 0, 128),
+    "S", (0, 255, 0),
+    "Z", (255, 0, 0),
+    "L", (0, 0, 255),
+    "J", (255, 127, 0)
+    }
 
 def rotated(shape):
     return [(-j, i) for i, j in shape]
@@ -67,6 +68,7 @@ class Tetris:
         self.width = width
         self.height = height
         self.board = np.zeros(shape=(width, height), dtype=np.float64)
+        self.board_rgb = np.zeros(shape=(width, height), dtype=np.float64)
         self.render_enabled = True
         self.seed = seed
 
@@ -469,11 +471,11 @@ class Tetris:
             # Wait for a short time to allow other events to be handled
             pygame.time.wait(1)
 
-    def render_save_video(self, score):
-        self._set_piece(True)
+    def render_save_video(self, score, model_name):
+        self._set_piece(True, self.shape, self.anchor)
         board = self.board[:].T
         board = [[green if board[i][j] else black for j in range(self.width)] for i in range(self.height)]
-        self._set_piece(False)
+        self._set_piece(False, self.shape, self.anchor)
 
         img = np.array(board).reshape((self.height, self.width, 3)).astype(np.uint8)
         img = cv.resize(img, (self.width * 25, self.height * 25), interpolation=cv.INTER_NEAREST)
@@ -483,16 +485,15 @@ class Tetris:
         img[:, [i * 25 for i in range(self.width)], :] = 0
 
         # Add extra spaces on the top to display game score
-        extra_spaces = np.zeros((2 * 25, self.width * 25, 3))
-        cv.putText(extra_spaces, "Score: " + str(score), (15, 30), cv.FONT_HERSHEY_SIMPLEX, 1, white, 2, cv.LINE_AA)
-        cv.putText(extra_spaces, "Score: " + str(score), (15, 70), cv.FONT_HERSHEY_SIMPLEX, 1, white, 2, cv.LINE_AA)
-        cv.putText(extra_spaces,"Hold: " + self.get_shape_letter(self.held_shape),(15, 100),cv.FONT_HERSHEY_SIMPLEX,1,white,2,cv.LINE_AA,)
+        extra_spaces = np.zeros((110, self.width * 25, 3))
+        cv.putText(extra_spaces, "Score: " + str(score), (15, 30), cv.FONT_HERSHEY_SIMPLEX, 0.5, white, 1, cv.LINE_AA)
+        cv.putText(extra_spaces, f"{model_name}", (15, 60), cv.FONT_HERSHEY_SIMPLEX, 1, white, 2, cv.LINE_AA)
+        cv.putText(extra_spaces,"Hold: " + self.get_shape_letter(self.held_shape),(15, 90),cv.FONT_HERSHEY_SIMPLEX,1,white,2,cv.LINE_AA,)
         # Add extra spaces to the board image
         img = np.concatenate((extra_spaces, img), axis=0)
 
         # Draw horizontal line to separate board and extra space area
-        img[50, :, :] = white
-
-        cv.imshow('DQN Tetris', img)
+        img[110, :, :] = white
+        cv.imshow(model_name, img)
         cv.waitKey(1)
         return img
