@@ -16,4 +16,4 @@
 module load python3/3.11.3
 # module load cuda/11.8
 source venv/bin/activate
-python3 /DQN/src_dqn/train_dqn.py
+python3 NNTemplate.py
