@@ -1,4 +1,4 @@
-#BSUB -J test_2
+#BSUB -J changed_test1
 #BSUB -o test_2%J.out
 #BSUB -e test_2_err%J.err
 #BSUB -n 4
