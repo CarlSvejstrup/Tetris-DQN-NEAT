@@ -1,6 +1,6 @@
 #BSUB -J changed_test1
-#BSUB -o test_2%J.out
-#BSUB -e test_2_err%J.err
+#BSUB -o changed_test1%J.out
+#BSUB -e changed_test1%J.err
 #BSUB -n 4
 #BSUB -q gpua10
 #BSUB -gpu "num=1:mode=exclusive_process"
