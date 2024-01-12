@@ -1,5 +1,6 @@
 import sys
 import os
+import csv
 
 # Get the parent directory (one level up)
 main_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -21,7 +22,7 @@ import numpy as np
 pygame.init()
 
 # Initializing pygame window
-width, height = 300, 700
+width, height = 250, 625
 screen = pygame.display.set_mode((width, height))
 
 # set seed
@@ -34,17 +35,18 @@ env = Tetris(10, 20, seed)
 max_episode = 4000
 max_steps = 250000
 max_reward = 250000
+max_time_duration = sys.maxsize
 
 
 # Log parameters
 print_interval = 10
 interval_reward = []
 
-framerate = 2
+framerate = 100  # sys.maxsize
 save_log = True
-log_name = "server_test1"
-save_model = True
-model_name = 'hold_test1'
+log_name = "testing_steps"
+save_model = False
+model_name = "hold_test2"
 exit_program = False
 run_hold = True
 
@@ -79,8 +81,10 @@ agent = Agent(
 
 episodes = []
 rewards = []
+tetris_clear_list = []
 current_max = 0
 highscore = 0
+start_time = time.time()
 
 # Creating log writer
 if save_log:
@@ -101,8 +105,9 @@ if save_log:
 # logging reward, loss and epsilon to tensorboard
 def logging():
     writer.add_scalar("Total Reward", total_reward, episode)
+    writer.add_scalar("Steps per Episode:", steps, episode)
+    writer.add_scalar("Tetris clears:", env.tetris_amount, episode)
     writer.add_scalar("Epsilon", agent.epsilon_list[-1], episode)
-
     if agent.losses:
         writer.add_scalar("Loss", agent.losses[-1], episode)
 
@@ -114,6 +119,7 @@ for episode in range(max_episode):
     total_reward = 0
     render_enabled = True
     env.held_shape = None
+    env.tetris_amount = 0
 
     while not done and steps < max_steps:
         # Key controls for the training session
@@ -175,15 +181,11 @@ for episode in range(max_episode):
     # Monitor reward and episodes
     episodes.append(episode)
     rewards.append(total_reward)
-
-    if len(interval_reward) <= print_interval:
-        interval_reward.append(total_reward)
-    else:
-        interval_reward = []
+    tetris_clear_list.append(env.tetris_amount)
 
     # Save the model if it achieves a higher total reward than the current maximum
     if total_reward > max_reward and total_reward > highscore:
-        print('model_save')
+        print("model_save")
         agent.model_save(path=f"./DQN/models/{model_name}.pt")
 
     # Check if episode was a highscore
@@ -199,17 +201,30 @@ for episode in range(max_episode):
 
     # Print training data
     if episode % print_interval == 0:
+        print("-" * 30)
         print(f"Running episode {str(episode)}")
         print(f"Epsilon:  {str(agent.epsilon)}")
-        print(f"Mean reward:  {str(np.mean(interval_reward))}")
-        print(f"Round Highscore: {str(max(interval_reward))}")
+        print(f"Mean reward:  {str(np.mean(rewards[-print_interval:]))}")
+        print(f"Round Highscore: {str(max(rewards[-print_interval:]))}")
         print(f"Training Highscore: {str(highscore)}")
+        print(
+            f"Round 'tetris-clear' highscore:{str(max(tetris_clear_list[-print_interval:]))}"
+        )
+        print(f"'tetris-clear' highscore:{str(max(tetris_clear_list))}")
 
-# Close pygame
-pygame.quit()
+    if time.time() - start_time > max_time_duration:
+        break
 
 # Close tensorboard
 if save_log:
     writer.close()
 
-print(highscore)
+print("#" * 30)
+print("Time limit reached. Ending training")
+print(f"Time training: {str(max_time_duration)} seconds")
+print(f"Last episode: {str(episode)}")
+print(f"Training Highscore: {str(highscore)}")
+print(f"'tetris-clear' highscore: {str(max(tetris_clear_list))}")
+
+# Close pygame
+pygame.quit()

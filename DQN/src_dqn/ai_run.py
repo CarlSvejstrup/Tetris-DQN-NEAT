@@ -1,63 +1,107 @@
+import sys
+import os
+
+# Get the parent directory (one level up)
+main_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.append(main_directory)
+
 from tetris_engine import Tetris
 from agent_dqn import Agent, QNetwork
 import time
+import numpy as np
 import pygame
 import torch
 from torch.utils.tensorboard import SummaryWriter
 
-
 pygame.init()
 
-env = Tetris(10, 20)
-agent = Agent(env.state_size)
+seed = 44
+env = Tetris(10, 20, seed)
+agent = Agent(env.state_size, seed=seed)
 
-model_path = "DQN/models/model2.pt"
+width, height = 250, 625
+screen = pygame.display.set_mode((width, height))
+
+model_name = "hold_test2"
+model_path = f"DQN/models/{model_name}.pt"
 
 model = QNetwork(env.state_size)
 model.load_state_dict(torch.load(model_path))
 model.eval()
 
-max_episodes = 1
+max_episodes = 100
 episodes = []
 rewards = []
+tetris_clear_list = []
 current_max = 0
+interval_reward = []
+highscore = 0
+exit_program = False
+
 log_evaluation = True
-framerate = 500
+log_name = "hold_test2"
+framerate = sys.maxsize
+run_hold = True
+print_interval = 1
+step = 0
+
 
 if log_evaluation:
-    log_folder = "run1"
-    log_dir = "evaluation/" + log_folder
+    log_dir = "./DQN/evaluation/" + log_name
     writer = SummaryWriter(log_dir=log_dir)
 
 
 def logging():
+    writer.add_scalar("Tetris clears:", env.tetris_amount, episode)
     writer.add_scalar("Total Reward", total_reward, episode)
+    writer.add_scalar("Steps per Episode:", step, episode)
 
+def timer(start_time, end_time):
+    end_time = time.time()
+    elapsed_time_seconds = end_time - start_time
+    if elapsed_time_seconds < 60:
+        seconds = round(elapsed_time_seconds, 2)
+        minutes = 0
+    else:
+        minutes = int(elapsed_time_seconds // 60)
+        seconds = int(elapsed_time_seconds % 60)
+
+    return (minutes, seconds)
 
 for episode in range(max_episodes):
     current_state = env.reset()
     done = False
     total_reward = 0
-
-    print("Running episode " + str(episode))
+    env.tetris_amount = 0
+    start_time = time.time()
 
     while not done:
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+                    env.toggle_render()  # Toggle render state with 'r'
                 if event.key == pygame.K_q:
-                    quit()
+                    exit_program = True
+                if event.type == pygame.QUIT:
+                    exit_program = True
+
+        if exit_program:
+            break
 
         env.render(total_reward, framerate)
-        next_states = env.get_next_states(env.shape)
+
+        if run_hold:
+            next_states = env.merge_next_states()
+        else:
+            next_states = env.get_next_states(env.shape, env.anchor, False)
 
         # If the dictionary is empty, meaning the game is over
         if not next_states:
             break
 
+        states = list(next_states.values())
         # Tell the agent to choose the best possible state
-        best_state = agent.act(
-            states=list(next_states.values()), model=model, use_epsilon=False
-        )
+        best_state = agent.act(states=states, model=model, use_epsilon=False)
 
         # Grab the best tetromino position and its rotation chosen by the agent
         best_action = None
@@ -71,11 +115,39 @@ for episode in range(max_episodes):
 
         current_state = next_states[best_action]
 
+        step += 1
+
+    end_time = time.time()
+
+    if log_evaluation:
         logging()
+
+    if exit_program:
+        break
 
     episodes.append(episode)
     rewards.append(total_reward)
+    tetris_clear_list.append(env.tetris_amount)
 
-    print("Total reward: " + str(total_reward))
+    if total_reward > highscore:
+        highscore = total_reward
 
-writer.close()
+    # Print training data
+    if episode % print_interval == 0:
+        print("-" * 30)
+        print(f"Running episode {str(episode + 1)}")
+        print(f"Mean reward:  {str(np.mean(rewards[-print_interval:]))}")
+        print(f"Round Highscore: {str(max(rewards[-print_interval:]))}")
+        print(f"Training Highscore: {str(highscore)}")
+        print(
+            f"Round 'tetris-clear' highscore:{str(max(tetris_clear_list[-print_interval:]))}"
+        )
+        print(f"'tetris-clear' highscore:{str(max(tetris_clear_list))}")
+        print(f"episodetime: {timer(start_time, end_time)[0]} minutes, {timer(start_time, end_time)[1]} seconds")
+
+if log_evaluation:
+    writer.close()
+
+print(f"Highscore: {str(highscore)}")
+print(f"'tetris-clear' highscore: {str(max(tetris_clear_list))}")
+pygame.quit()

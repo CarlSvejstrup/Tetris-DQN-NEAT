@@ -1,4 +1,4 @@
-Python
-Torch
+torch
 numpy
-Tensorboard
+pygame
+tensorboard
