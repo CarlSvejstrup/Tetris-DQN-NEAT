@@ -17,4 +17,4 @@ module load python3/3.11.3
 module load cuda/11.8
 
 source tetris_temp_venv/bin/activate
-python3 ./src_neat/neat_main.py
+python3 -u  ./src_neat/neat_main.py
