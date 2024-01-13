@@ -59,9 +59,9 @@ if __name__ == "__main__":
     run_hold = True
 
     save_log = True
-    log_name = "DQN_server_25_000"
+    log_name = "DQN_server_25_000_2"
     save_model = True
-    model_name = "DQN_server_25_000"
+    model_name = "DQN_server_25_000_2"
     exit_program = False
     run_hold = True
 
@@ -82,13 +82,13 @@ if __name__ == "__main__":
     # Initializing agent
     agent = Agent(
         env.state_size,
-        memory_size=30_000,
+        memory_size=100_000,
         discount=0.98,
-        epsilon_min=0.001,
-        epsilon_end_episode=3_000,
+        epsilon_min=0.01,
+        epsilon_end_episode=7_000,
         batch_size=512,
         episodes_per_update=1,
-        replay_start=3_000,
+        replay_start=5_000,
         learning_rate=0.001,
         seed=seed,
     )
