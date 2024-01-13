@@ -183,10 +183,6 @@ if __name__ == "__main__":
         if agent.epsilon > agent.epsilon_min:
             agent.epsilon -= agent.epsilon_decay
 
-        # Check if episode was a highscore
-        if total_reward > highscore:
-            highscore = total_reward
-
         # logs data to tensorboard
         if save_log:
             logging()
@@ -200,6 +196,10 @@ if __name__ == "__main__":
         if total_reward > reward_save and total_reward > highscore:
             print("model_save")
             agent.model_save(path=f"./DQN/models/{model_name}.pt")
+
+        # Check if episode was a highscore
+        if total_reward > highscore:
+            highscore = total_reward
 
         # Print training data
         if episode % print_interval == 0:
