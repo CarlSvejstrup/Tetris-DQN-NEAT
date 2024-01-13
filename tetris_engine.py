@@ -266,7 +266,6 @@ class Tetris:
     def get_next_states(self, shape, anchor, held):
         old_shape = shape
         old_anchor = anchor
-
         states = {}
         # Loop to try each possibility for the current shape
 
