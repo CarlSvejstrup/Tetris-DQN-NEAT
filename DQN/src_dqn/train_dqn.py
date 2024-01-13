@@ -18,7 +18,7 @@ import torch
 def logging():
     writer.add_scalar("Total Reward", total_reward, episode)
     writer.add_scalar("Steps per Episode:", steps, episode)
-    writer.add_scalar("Tetris clears:", env.tetris_amount, episode)
+    writer.add_scalar("Tetris clears:", env.tetris_clear, episode)
     writer.add_scalar("Epsilon", agent.epsilon_list[-1], episode)
     if agent.losses:
         writer.add_scalar("Loss", agent.losses[-1], episode)
@@ -123,7 +123,7 @@ if __name__ == "__main__":
         total_reward = 0
         render_enabled = True
         env.held_shape = None
-        env.tetris_amount = 0
+        env.tetris_clear = 0
 
         while not done and total_reward < max_reward:
             # Key controls for the training session
@@ -194,7 +194,7 @@ if __name__ == "__main__":
         # Monitor reward and episodes
         episodes.append(episode)
         rewards.append(total_reward)
-        tetris_clear_list.append(env.tetris_amount)
+        tetris_clear_list.append(env.tetris_clear)
 
         # Save the model if it achieves a higher total reward than the current maximum
         if total_reward > reward_save and total_reward > highscore:
