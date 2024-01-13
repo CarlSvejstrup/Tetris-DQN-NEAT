@@ -1,8 +1,8 @@
-#BSUB -J dqn_run_test
-#BSUB -o dqn_run_test%J.out
-#BSUB -e dqn_run_test%J.err
+#BSUB -J dqn_run2_
+#BSUB -o dqn_run2_%J.out
+#BSUB -e dqn_run2_%J.err
 #BSUB -n 4
-#BSUB -q gpuv10
+#BSUB -q gpuv100
 #BSUB -gpu "num=1:mode=exclusive_process"
 #BSUB -R "rusage[mem=8G]"
 #BSUB -R "span[hosts=1]"
@@ -17,4 +17,4 @@ module load python3/3.11.3
 module load cuda/11.8
 
 source tetris_temp_venv/bin/activate
-python3 ./DQN/src_dqn/train_dqn.py
+python3 -u ./DQN/src_dqn/train_dqn.py
