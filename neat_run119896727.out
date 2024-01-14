@@ -365,3 +365,51 @@ Saving checkpoint to src_neat/checkpoint_neat/neat-checkpoint-22
 
  ****** Running generation 23 ****** 
 
+Population's average fitness: 720767.58000 stdev: 3418083.84356
+Best fitness: 22373142.00000 - size: (4, 8) - species 4 - id 984
+Average adjusted fitness: 0.020
+Mean genetic distance 1.855, standard deviation 0.502
+Population of 51 members in 3 species:
+   ID   age  size  fitness  adj fit  stag
+  ====  ===  ====  =======  =======  ====
+     1   23     8   1048.0    0.000     1
+     2   23    29  1410229.0    0.008     3
+     4    9    14  22373142.0    0.050     0
+Total extinctions: 0
+Generation time: 8412.887 sec (2003.666 average)
+Saving checkpoint to src_neat/checkpoint_neat/neat-checkpoint-23
+
+ ****** Running generation 24 ****** 
+
+Population's average fitness: 398920.03922 stdev: 1842531.26336
+Best fitness: 12041491.00000 - size: (4, 8) - species 2 - id 984
+Average adjusted fitness: 0.026
+Mean genetic distance 1.855, standard deviation 0.528
+Population of 50 members in 3 species:
+   ID   age  size  fitness  adj fit  stag
+  ====  ===  ====  =======  =======  ====
+     1   24     8    850.0    0.000     2
+     2   24    27  12041491.0    0.039     0
+     4   10    15  5920012.0    0.040     1
+Total extinctions: 0
+Generation time: 4767.714 sec (2381.310 average)
+Saving checkpoint to src_neat/checkpoint_neat/neat-checkpoint-24
+
+ ****** Running generation 25 ****** 
+
+Population's average fitness: 575602.96000 stdev: 3735985.75965
+Best fitness: 26711014.00000 - size: (4, 6) - species 2 - id 935
+Average adjusted fitness: 0.014
+Mean genetic distance 1.823, standard deviation 0.519
+Population of 51 members in 3 species:
+   ID   age  size  fitness  adj fit  stag
+  ====  ===  ====  =======  =======  ====
+     1   25     7    915.0    0.000     3
+     2   25    34  26711014.0    0.038     0
+     4   11    10  818309.0    0.003     2
+Total extinctions: 0
+Generation time: 6270.631 sec (2981.132 average)
+Saving checkpoint to src_neat/checkpoint_neat/neat-checkpoint-25
+
+ ****** Running generation 26 ****** 
+

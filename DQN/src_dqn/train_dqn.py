@@ -83,10 +83,10 @@ if __name__ == "__main__":
     agent = Agent(
         env.state_size,
         memory_size=100_000,
-        discount=0.99,
-        epsilon_min=0.001,
+        discount=0.98,
+        epsilon_min=0.005,
         epsilon_end_episode=7_000,
-        batch_size=1000,
+        batch_size=500,
         episodes_per_update=1,
         replay_start=5000,
         learning_rate=0.001,
