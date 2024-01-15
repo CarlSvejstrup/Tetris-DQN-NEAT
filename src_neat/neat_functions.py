@@ -77,7 +77,7 @@ def eval_genomes(genomes, config):
 
 
 def test_ai(config, out, test_draw):
-    with open("best.pickle", "rb") as f:
+    with open("neat_best.pickle", "rb") as f:
         winner = pickle.load(f)
     winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
     tetris = Tetris_game()
@@ -120,6 +120,6 @@ def run_neat(config, seed=random.randint(1, 1_000_000)):
         )
     )
 
-    winner = p.run(eval_genomes, int(10_000 / 50))
-    with open("best.pickle", "wb") as f:
+    winner = p.run(eval_genomes, int(10_000/50))
+    with open("neat_best.pickle", "wb") as f:
         pickle.dump(winner, f)
