@@ -22,11 +22,14 @@ agent = Agent(env.state_size, seed=seed)
 width, height = 250, 625
 screen = pygame.display.set_mode((width, height))
 
-model_name = "hold_test1"
+# model_name = "DQN_server_25_000_3"
+model_name = "DQN_server_25_000_3"
 model_path = f"DQN/models/{model_name}.pt"
 
 model = QNetwork(env.state_size)
-model.load_state_dict(torch.load(model_path))
+model.load_state_dict(
+    torch.load(model_path, map_location=torch.device("cpu"))
+)  # Modified line
 model.eval()
 
 max_episodes = 100
