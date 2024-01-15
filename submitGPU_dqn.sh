@@ -1,20 +1,20 @@
-#BSUB -J changed_test1
-#BSUB -o changed_test1%J.out
-#BSUB -e changed_test1%J.err
+#BSUB -J dqn_run1
+#BSUB -o dqn_run1%J.out
+#BSUB -e dqn_run1%J.err
 #BSUB -n 4
-#BSUB -q gpua10
+#BSUB -q gpuv100
 #BSUB -gpu "num=1:mode=exclusive_process"
 #BSUB -R "rusage[mem=8G]"
 #BSUB -R "span[hosts=1]"
-#BSUB -W 1:00
+#BSUB -W 10:00
 ### -- send notification at start --
 #BSUB -B
 ### -- send notification at completion--
 #BSUB -N
 # end of BSUB options
 
-module load python3/3.11.5
-module load cuda/12.1
+module load python3/3.11.3
+module load cuda/11.8
 
-source tetris_temp_env/bin/activate
-python3 NNTemplate.py
+source tetris_temp_venv/bin/activate
+python3 -u ./DQN/src_dqn/train_dqn.py
