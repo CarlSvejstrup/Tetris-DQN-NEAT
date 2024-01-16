@@ -8,6 +8,7 @@ import random
 import cv2 as cv
 import csv
 
+
 draw = False
 max_score = 10_000_000
 tetris_bonus = 1_000
@@ -18,10 +19,11 @@ project_dir = os.path.join(current_dir, "..")
 sys.path.append(project_dir)
 from tetris_engine import Tetris
 
+tetris = None
 
 class Tetris_game:
-    def __init__(self) -> None:
-        self.game = Tetris(10, 20)
+    def __init__(self, seed) -> None:
+        self.game = Tetris(10, 20, seed)
 
     def train_ai(self, genome, config) -> None:
         net = neat.nn.FeedForwardNetwork.create(genome, config)
@@ -29,7 +31,7 @@ class Tetris_game:
         genome.fitness = 0
 
         while True:
-            reward, done = self.make_move(net, with_held=False)
+            reward, done = self.make_move(net, with_held=True)
             genome.fitness += reward
 
             if draw:
@@ -43,7 +45,7 @@ class Tetris_game:
                 genome.fitness = int(genome.fitness)
                 return genome.fitness
 
-    def make_move(self, net, with_held=False):
+    def make_move(self, net, with_held=True):
         best_action = None
         best_value = None
 
@@ -71,7 +73,7 @@ def eval_genomes(genomes, config):
         pygame.display.set_mode((width, height))
     results = np.zeros(50)
     for i, (genome_id, genome) in enumerate(genomes):
-        tetris = Tetris_game()
+        global tetris
         results[i-1] = tetris.train_ai(genome=genome, config=config)
     
     with open ("NEAT_results.csv", "a", newline="") as file:
@@ -125,10 +127,10 @@ def run_neat(config, seed=random.randint(1, 1_000_000)):
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
     p.add_reporter(
-        neat.Checkpointer(
-            1, filename_prefix="src_neat/checkpoint_neat/neat-checkpoint-"
+        neat.Checkpointer(1, filename_prefix="src_neat/checkpoint_neat/neat-checkpoint-")
         )
-    )
+    global tetris
+    tetris = Tetris_game(12)
 
     winner = p.run(eval_genomes, int(50))
     with open("neat_best.pickle", "wb") as f:
