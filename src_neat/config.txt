@@ -34,14 +34,14 @@ conn_add_prob           = 0.5
 conn_delete_prob        = 0.5
 # connection enable options
 enabled_default         = True
-enabled_mutate_rate     = 0.01
+enabled_mutate_rate     = 0.02
 
 feed_forward            = True
 initial_connection      = full_direct
 
 # node add/remove rates
-node_add_prob           = 0.2
-node_delete_prob        = 0.2
+node_add_prob           = 0.25
+node_delete_prob        = 0.25
 
 # network parameters
 num_hidden              = 1
@@ -71,7 +71,7 @@ compatibility_threshold = 3.0
 
 [DefaultStagnation]
 species_fitness_func = max
-max_stagnation       = 8
+max_stagnation       = 5
 species_elitism      = 2
 
 [DefaultReproduction]

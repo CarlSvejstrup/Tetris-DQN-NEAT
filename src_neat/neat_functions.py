@@ -31,7 +31,7 @@ class Tetris_game:
         genome.fitness = 0
 
         while True:
-            reward, done = self.make_move(net, with_held=False)
+            reward, done = self.make_move(net, with_held=True)
             genome.fitness += reward
 
             if draw:
@@ -45,7 +45,7 @@ class Tetris_game:
                 genome.fitness = int(genome.fitness)
                 return genome.fitness
 
-    def make_move(self, net, with_held=False):
+    def make_move(self, net, with_held=True):
         best_action = None
         best_value = None
 
@@ -126,7 +126,7 @@ def run_neat(config, seed=random.randint(1, 1_000_000)):
         neat.Checkpointer(1, filename_prefix="src_neat/checkpoint_neat/neat-checkpoint-")
         )
     global tetris
-    tetris = Tetris_game(seed)
+    tetris = Tetris_game(12)
 
     winner = p.run(eval_genomes, int(50))
     with open("neat_best.pickle", "wb") as f:
