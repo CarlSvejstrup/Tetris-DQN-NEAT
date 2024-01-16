@@ -115,8 +115,8 @@ def test_ai(config, out, test_draw):
 
 def run_neat(config, seed=random.randint(1, 1_000_000)):
     random.seed(seed)
-    p = neat.Checkpointer.restore_checkpoint('src_neat/checkpoint_neat/neat-checkpoint-25')
-    #p = neat.Population(config)
+    #p = neat.Checkpointer.restore_checkpoint('src_neat/checkpoint_neat/neat-checkpoint-25')
+    p = neat.Population(config)
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
@@ -126,6 +126,6 @@ def run_neat(config, seed=random.randint(1, 1_000_000)):
         )
     )
 
-    winner = p.run(eval_genomes, int(10_000/50))
+    winner = p.run(eval_genomes, int(50))
     with open("neat_best.pickle", "wb") as f:
         pickle.dump(winner, f)
