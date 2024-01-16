@@ -6,9 +6,10 @@ import pickle
 import sys
 import random
 import cv2 as cv
+import csv
 
 draw = False
-max_score = 25_000_000
+max_score = 10_000_000
 tetris_bonus = 1_000
 
 # skift directory for at kunne importere Tetris fra tetris_engine
@@ -40,7 +41,7 @@ class Tetris_game:
 
             if done:
                 genome.fitness = int(genome.fitness)
-                break
+                return genome.fitness
 
     def make_move(self, net, with_held=False):
         best_action = None
@@ -68,10 +69,15 @@ def eval_genomes(genomes, config):
         pygame.init()
         width, height = 300, 700
         pygame.display.set_mode((width, height))
-
-    for genome_id, genome in genomes:
+    results = np.zeros(50)
+    for i, (genome_id, genome) in enumerate(genomes):
         tetris = Tetris_game()
-        tetris.train_ai(genome=genome, config=config)
+        results[i-1] = tetris.train_ai(genome=genome, config=config)
+    
+    with open ("NEAT_results.csv", "a", newline="") as file:
+        writer = csv.DictWriter(file, fieldnames = ["mean", "std", "max"])
+        writer.writerow({"mean": np.mean(results), "std": np.std(results), "max": results.max()})
+
     if draw:
         pygame.quit()
 
@@ -109,14 +115,14 @@ def test_ai(config, out, test_draw):
 
 def run_neat(config, seed=random.randint(1, 1_000_000)):
     random.seed(seed)
-    # p = neat.Checkpointer.restore_checkpoint('src_neat/checkpoint_neat/neat-checkpoint-23')
-    p = neat.Population(config)
+    p = neat.Checkpointer.restore_checkpoint('src_neat/checkpoint_neat/neat-checkpoint-25')
+    #p = neat.Population(config)
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
     p.add_reporter(
         neat.Checkpointer(
-            5, filename_prefix="src_neat/checkpoint_neat/neat-checkpoint-"
+            1, filename_prefix="src_neat/checkpoint_neat/neat-checkpoint-"
         )
     )
 
