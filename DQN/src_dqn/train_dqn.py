@@ -1,5 +1,7 @@
 import sys
 import os
+import csv
+import statistics
 
 # Get the parent directory (one level up)
 main_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -33,9 +35,9 @@ env = Tetris(10, 20, seed)
 
 
 # Initialize training variables
-max_episode = 3_000
-max_reward = 25_000_000
-reward_save = 1_000_000
+max_episode = 2_500
+max_reward = 10_000_000
+reward_save = 100_000
 max_time_duration = sys.maxsize
 
 # Log parameters
@@ -45,10 +47,10 @@ interval_reward = []
 framerate = sys.maxsize
 run_hold = True
 
-save_log = False
-log_name = "DQN_server_25_000_3"
+save_log = True
+log_name = "DQN_server_2_500_1"
 save_model = True
-model_name = "DQN_server_25_000_3"
+model_name = "DQN_server_2_500_1"
 exit_program = False
 run_hold = True
 
@@ -69,7 +71,7 @@ Reward = cleared_lines**2 * self.width + 1
 # Initializing agent
 agent = Agent(
     env.state_size,
-    memory_size=100_000,
+    memory_size=30_000,
     discount=0.98,
     epsilon_min=0.001,
     epsilon_end_episode=2_000,
@@ -225,13 +227,28 @@ for episode in range(max_episode):
 if save_log:
     writer.close()
 
+def divide_chunks(l, n):
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
+
+with open('DQN/training_logs/reward_statistics.csv', 'w', newline='') as file:
+    writer = csv.writer(file)
+    writer.writerow(['Highest Score', 'Standard Deviation', 'Mean'])
+
+    for chunk in divide_chunks(rewards, 50):
+        highest_score = max(chunk)
+        std_dev = statistics.stdev(chunk)
+        mean = statistics.mean(chunk)
+        writer.writerow([highest_score, std_dev, mean])
+
 print("#" * 30)
 print("Time limit reached. Ending training")
 print(f"Time training: {str(time.time() - start_time)} seconds")
 print(f"Last episode: {str(episode)}")
 print(f"Training Highscore: {str(highscore)}")
 print(f"'tetris-clear' highscore: {str(max(tetris_clear_list))}")
-
+print(f'Reward mean: {np.mean(rewards)}')
+print(f"Reward sd: {np.std(rewards)}")
 # Close pygame
 
 pygame.quit()
