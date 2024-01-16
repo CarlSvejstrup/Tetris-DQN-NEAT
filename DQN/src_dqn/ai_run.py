@@ -13,20 +13,24 @@ import pygame
 import torch
 from torch.utils.tensorboard import SummaryWriter
 
-pygame.init()
-
 seed = 44
 env = Tetris(10, 20, seed)
 agent = Agent(env.state_size, seed=seed)
 
-width, height = 250, 625
-screen = pygame.display.set_mode((width, height))
+env.render_enabled = False
+if env.render_enabled:
+    pygame.init()
+    width, height = 250, 625
+    screen = pygame.display.set_mode((width, height))
 
+# model_name = "DQN_server_25_000_3"
 model_name = "hold_test1"
 model_path = f"DQN/models/{model_name}.pt"
 
 model = QNetwork(env.state_size)
-model.load_state_dict(torch.load(model_path))
+model.load_state_dict(
+    torch.load(model_path, map_location=torch.device("cpu"))
+)  # Modified line
 model.eval()
 
 max_episodes = 100
@@ -38,8 +42,8 @@ interval_reward = []
 highscore = 0
 exit_program = False
 
-log_evaluation = True
-log_name = "hold_test2"
+log_evaluation = False
+log_name = "DQN_model_3"
 framerate = sys.maxsize
 run_hold = True
 print_interval = 1
@@ -68,6 +72,8 @@ def timer(start_time, end_time):
 
     return (minutes, seconds)
 
+print('Game is running')
+
 for episode in range(max_episodes):
     current_state = env.reset()
     done = False
@@ -76,19 +82,21 @@ for episode in range(max_episodes):
     start_time = time.time()
 
     while not done:
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_r:
-                    env.toggle_render()  # Toggle render state with 'r'
-                if event.key == pygame.K_q:
-                    exit_program = True
-                if event.type == pygame.QUIT:
-                    exit_program = True
+        if env.render_enabled:
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_r:
+                        env.toggle_render()  # Toggle render state with 'r'
+                    if event.key == pygame.K_q:
+                        exit_program = True
+                    if event.type == pygame.QUIT:
+                        exit_program = True
 
         if exit_program:
             break
-
-        env.render(total_reward, framerate)
+        
+        if env.render_enabled:
+            env.render(total_reward, framerate)
 
         if run_hold:
             next_states = env.merge_next_states()
@@ -127,7 +135,7 @@ for episode in range(max_episodes):
 
     episodes.append(episode)
     rewards.append(total_reward)
-    tetris_clear_list.append(env.tetris_amount)
+    tetris_clear_list.append(env.tetris_clear)
 
     if total_reward > highscore:
         highscore = total_reward
@@ -148,6 +156,11 @@ for episode in range(max_episodes):
 if log_evaluation:
     writer.close()
 
+print(f'Game score: {str(total_reward)}')
+print(f'Game tetris: {str(env.tetris_clear)}')
+print(f'Mean score:{str(np.mean(rewards))} of {str(episode)} episode')
 print(f"Highscore: {str(highscore)}")
 print(f"'tetris-clear' highscore: {str(max(tetris_clear_list))}")
-pygame.quit()
+
+if env.render_enabled:
+    pygame.quit()

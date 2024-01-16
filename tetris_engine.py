@@ -19,16 +19,6 @@ green = (156, 204, 101)
 black = (0, 0, 0)
 white = (255, 255, 255)
 
-shape_color = {
-    "I", (0, 255, 255),
-    "O", (255, 255, 0),
-    "T", (128, 0, 128),
-    "S", (0, 255, 0),
-    "Z", (255, 0, 0),
-    "L", (0, 0, 255),
-    "J", (255, 127, 0)
-    }
-
 def rotated(shape):
     return [(-j, i) for i, j in shape]
 
@@ -202,7 +192,7 @@ class Tetris:
         self._new_piece()
         self.board = np.zeros_like(self.board)
         self.held_shape = None
-        self.anchor = None
+        # self.anchor = None
 
         return np.array([0 for _ in range(self.state_size)])
 
