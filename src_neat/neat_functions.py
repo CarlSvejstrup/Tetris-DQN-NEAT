@@ -117,7 +117,11 @@ def test_ai(config, out, test_draw):
 
 def run_neat(config, seed=random.randint(1, 1_000_000)):
     random.seed(seed)
+<<<<<<< HEAD
+    # p = neat.Checkpointer.restore_checkpoint('src_neat/checkpoint_neat/neat-checkpoint-25')
+=======
     #p = neat.Checkpointer.restore_checkpoint('src_neat/checkpoint_neat/neat-checkpoint-25')
+>>>>>>> 842b97b293c164fdb93c273f31287c296884b6d0
     p = neat.Population(config)
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
