@@ -1,5 +1,6 @@
 import sys
 import os
+import csv
 
 # Get the parent directory (one level up)
 main_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -17,14 +18,13 @@ seed = 44
 env = Tetris(10, 20, seed)
 agent = Agent(env.state_size, seed=seed)
 
-env.render_enabled = False
-if env.render_enabled:
-    pygame.init()
-    width, height = 250, 625
-    screen = pygame.display.set_mode((width, height))
+
+pygame.init()
+width, height = 250, 625
+screen = pygame.display.set_mode((width, height))
 
 # model_name = "DQN_server_25_000_3"
-model_name = "hold_test1"
+model_name = "DQN_server_2_500_16-01"
 model_path = f"DQN/models/{model_name}.pt"
 
 model = QNetwork(env.state_size)
@@ -33,7 +33,7 @@ model.load_state_dict(
 )  # Modified line
 model.eval()
 
-max_episodes = 100
+max_episodes = 10
 episodes = []
 rewards = []
 tetris_clear_list = []
@@ -43,11 +43,12 @@ highscore = 0
 exit_program = False
 
 log_evaluation = False
-log_name = "DQN_model_3"
+log_name = "DQN_model_16_01"
 framerate = sys.maxsize
 run_hold = True
 print_interval = 1
-step = 0
+steps = 0
+max_steps = 10000
 
 
 if log_evaluation:
@@ -58,7 +59,8 @@ if log_evaluation:
 def logging():
     writer.add_scalar("Tetris clears:", env.tetris_amount, episode)
     writer.add_scalar("Total Reward", total_reward, episode)
-    writer.add_scalar("Steps per Episode:", step, episode)
+    writer.add_scalar("Steps per Episode:", steps, episode)
+
 
 def timer(start_time, end_time):
     end_time = time.time()
@@ -72,7 +74,8 @@ def timer(start_time, end_time):
 
     return (minutes, seconds)
 
-print('Game is running')
+
+print("Game is running")
 
 for episode in range(max_episodes):
     current_state = env.reset()
@@ -81,20 +84,19 @@ for episode in range(max_episodes):
     env.tetris_amount = 0
     start_time = time.time()
 
-    while not done:
-        if env.render_enabled:
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_r:
-                        env.toggle_render()  # Toggle render state with 'r'
-                    if event.key == pygame.K_q:
-                        exit_program = True
-                    if event.type == pygame.QUIT:
-                        exit_program = True
+    while not done and steps < max_steps:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+                    env.toggle_render()  # Toggle render state with 'r'
+                if event.key == pygame.K_q:
+                    exit_program = True
+                if event.type == pygame.QUIT:
+                    exit_program = True
 
         if exit_program:
             break
-        
+
         if env.render_enabled:
             env.render(total_reward, framerate)
 
@@ -123,7 +125,12 @@ for episode in range(max_episodes):
 
         current_state = next_states[best_action]
 
-        step += 1
+        if steps % 500 == 0:
+            print(f"Steps: {str(steps)}")
+            print(f"Current Reward: {str(total_reward)}")
+            print(f"Number of tetris: {str(env.tetris_clear)}")
+
+        steps += 1
 
     end_time = time.time()
 
@@ -151,16 +158,19 @@ for episode in range(max_episodes):
             f"Round 'tetris-clear' highscore:{str(max(tetris_clear_list[-print_interval:]))}"
         )
         print(f"'tetris-clear' highscore:{str(max(tetris_clear_list))}")
-        print(f"episodetime: {timer(start_time, end_time)[0]} minutes, {timer(start_time, end_time)[1]} seconds")
+        print(
+            f"episodetime: {timer(start_time, end_time)[0]} minutes, {timer(start_time, end_time)[1]} seconds"
+        )
 
 if log_evaluation:
     writer.close()
 
-print(f'Game score: {str(total_reward)}')
-print(f'Game tetris: {str(env.tetris_clear)}')
-print(f'Mean score:{str(np.mean(rewards))} of {str(episode)} episode')
+print(f"Game score: {str(total_reward)}")
+print(f"Game tetris: {str(env.tetris_clear)}")
+print(f"Mean score:{str(np.mean(rewards))} of {str(episode)} episode")
+print(f"Std score:{str(np.std(rewards))} of {str(episode)} episode")
 print(f"Highscore: {str(highscore)}")
 print(f"'tetris-clear' highscore: {str(max(tetris_clear_list))}")
 
-if env.render_enabled:
-    pygame.quit()
+
+pygame.quit()

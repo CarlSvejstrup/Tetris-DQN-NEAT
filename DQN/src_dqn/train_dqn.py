@@ -36,7 +36,7 @@ if env.render_enabled:
 
 
 # Initialize training variables
-max_episode = 2_500
+max_episode = 2_000
 max_reward = 3_000_000
 reward_save = 1_000_000
 max_time_duration = sys.maxsize
@@ -49,9 +49,9 @@ framerate = sys.maxsize
 run_hold = True
 
 save_log = True
-log_name = "DQN_server_2_500_17-01"
+log_name = "DQN_server_2_500_17-01_2"
 save_model = True
-model_name = "DQN_server_2_500_17-01"
+model_name = "DQN_server_2_500_17-0_2"
 exit_program = False
 run_hold = True
 
