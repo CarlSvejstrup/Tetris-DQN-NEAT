@@ -1,4 +1,5 @@
 from neat_functions import *
+import csv
 make_video = True
 
 
@@ -16,7 +17,10 @@ config = neat.Config(neat.DefaultGenome,
                      neat.DefaultSpeciesSet, 
                      neat.DefaultStagnation,
                      config_path)
-
+with open("neat_best.pickle", "rb") as f:
+    winner = pickle.load(f)
+winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
+neat.visualize.draw_net(winner, view=True, filename="xor2-all.gv")
 for i in range(times_to_repeat):
     if make_video:
         # Set the video output settings
@@ -27,5 +31,9 @@ for i in range(times_to_repeat):
         # Create a VideoWriter object
         out = cv.VideoWriter(output_file, fourcc, fps, (width, height))  # Replace width and height with the size of your frames
 
-    scores[i] = test_ai(config, out, True)
-print(f"mean of score: {np.mean(scores)}\nstd of scores: {np.std(scores)}")
+    scores[i] = test_ai(winner_net, out, True)
+
+
+    with open ("NEAT_testing_results.csv", "w", newline="") as file:
+        writer = csv.writer(file, fieldnames = ["mean", "std", "max"])
+        writer.writerow(scores)

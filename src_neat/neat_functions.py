@@ -84,20 +84,19 @@ def eval_genomes(genomes, config):
         pygame.quit()
 
 
-def test_ai(config, out, test_draw):
-    with open("neat_best.pickle", "rb") as f:
-        winner = pickle.load(f)
-    winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
+def test_ai(winner_net, out, test_draw):
+
     tetris = Tetris_game()
     score = 0
     if test_draw and out is None:
         pygame.init()
         width, height = 300, 700
         pygame.display.set_mode((width, height))
+    moves = 0
     while True:
         reward, done = tetris.make_move(winner_net, with_held=True)
         score += reward
-
+        moves += 1
         if out is not None:
             frame = tetris.game.render_save_video(score, "Neat")
             frame = cv.convertScaleAbs(frame)
@@ -107,7 +106,7 @@ def test_ai(config, out, test_draw):
         elif test_draw:
             tetris.game.render1(score, framerate=60)
 
-        if done:
+        if done or moves >= 10_000:
             if out is None:
                 out.release()
             elif test_draw:
@@ -117,11 +116,7 @@ def test_ai(config, out, test_draw):
 
 def run_neat(config, seed=random.randint(1, 1_000_000)):
     random.seed(seed)
-<<<<<<< HEAD
     # p = neat.Checkpointer.restore_checkpoint('src_neat/checkpoint_neat/neat-checkpoint-25')
-=======
-    #p = neat.Checkpointer.restore_checkpoint('src_neat/checkpoint_neat/neat-checkpoint-25')
->>>>>>> 842b97b293c164fdb93c273f31287c296884b6d0
     p = neat.Population(config)
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
