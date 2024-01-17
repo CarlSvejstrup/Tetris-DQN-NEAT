@@ -42,8 +42,8 @@ interval_reward = []
 highscore = 0
 exit_program = False
 
-log_evaluation = False
-log_name = "DQN_model_16_01"
+log_evaluation = True
+log_name = "DQN_model_2_000_final"
 framerate = sys.maxsize
 run_hold = True
 print_interval = 1
@@ -162,7 +162,7 @@ for episode in range(max_episodes):
         print(
             f"episodetime: {timer(start_time, end_time)[0]} minutes, {timer(start_time, end_time)[1]} seconds"
         )
-    
+
     with open("DQN/evaluation/reward_statistics.csv", "a", newline="") as file:
         writer = csv.writer(file)
         writer.writerow([total_reward])
