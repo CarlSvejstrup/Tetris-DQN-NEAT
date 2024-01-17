@@ -48,9 +48,9 @@ framerate = sys.maxsize
 run_hold = True
 
 save_log = True
-log_name = "DQN_server_2_500_1"
+log_name = "DQN_server_2_500_16-01"
 save_model = True
-model_name = "DQN_server_2_500_1"
+model_name = "DQN_server_2_500_16-01"
 exit_program = False
 run_hold = True
 
