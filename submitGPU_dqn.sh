@@ -1,6 +1,6 @@
-#BSUB -J dqn_run-17-01_
-#BSUB -o dqn_run-17_01_%J.out
-#BSUB -e dqn_run-17-01_%J.err
+#BSUB -J dqn_run-17-01_2_
+#BSUB -o dqn_run-17_01_2_%J.out
+#BSUB -e dqn_run-17-01_2_%J.err
 #BSUB -n 4
 #BSUB -q gpuv100
 #BSUB -gpu "num=1:mode=exclusive_process"
