@@ -1,12 +1,12 @@
-#BSUB -J dqn_run1
-#BSUB -o dqn_run1%J.out
-#BSUB -e dqn_run1%J.err
+#BSUB -J dqn_run-17-01_
+#BSUB -o dqn_run-17_01_%J.out
+#BSUB -e dqn_run-17-01_%J.err
 #BSUB -n 4
 #BSUB -q gpuv100
 #BSUB -gpu "num=1:mode=exclusive_process"
 #BSUB -R "rusage[mem=8G]"
 #BSUB -R "span[hosts=1]"
-#BSUB -W 10:00
+#BSUB -W 24:00
 ### -- send notification at start --
 #BSUB -B
 ### -- send notification at completion--

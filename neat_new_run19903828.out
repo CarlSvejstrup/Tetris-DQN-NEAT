@@ -608,3 +608,19 @@ Saving checkpoint to src_neat/checkpoint_neat/neat-checkpoint-39
 
  ****** Running generation 40 ****** 
 
+Population's average fitness: 983330.32000 stdev: 3359703.68442
+Best fitness: 13381006.00000 - size: (1, 2) - species 2 - id 1803
+Average adjusted fitness: 0.055
+Mean genetic distance 2.213, standard deviation 0.652
+Population of 50 members in 3 species:
+   ID   age  size  fitness  adj fit  stag
+  ====  ===  ====  =======  =======  ====
+     2   40    25  13381006.0    0.098     0
+     3   34    10    406.0    0.000     2
+     4    1    15  9755216.0    0.066     0
+Total extinctions: 0
+Generation time: 19385.452 sec (7581.120 average)
+Saving checkpoint to src_neat/checkpoint_neat/neat-checkpoint-40
+
+ ****** Running generation 41 ****** 
+
