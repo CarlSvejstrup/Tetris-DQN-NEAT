@@ -22,16 +22,16 @@ if torch.cuda.is_available():
 else:
     print("Cuda not available")
 
-# Initializing pygame window
-pygame.init()
-width, height = 250, 625
-screen = pygame.display.set_mode((width, height))
-
 # set seed
 seed = 12
-
 # Initialize tetris environment
 env = Tetris(10, 20, seed)
+
+# Initializing pygame window
+if env.render_enabled:
+    pygame.init()
+    width, height = 250, 625
+    screen = pygame.display.set_mode((width, height))
 
 
 # Initialize training variables
@@ -127,15 +127,15 @@ for episode in range(max_episode):
 
     while not done and total_reward < max_reward:
         # Key controls for the training session
-
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_r:
-                    env.toggle_render()  # Toggle render state with 'r'
-                if event.key == pygame.K_q:
-                    exit_program = True
-                if event.type == pygame.QUIT:
-                    exit_program = True
+        if env.get_render():
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_r:
+                        env.toggle_render()  # Toggle render state with 'r'
+                    if event.key == pygame.K_q:
+                        exit_program = True
+                    if event.type == pygame.QUIT:
+                        exit_program = True
 
         # Render game
         if env.render_enabled:
@@ -227,13 +227,15 @@ for episode in range(max_episode):
 if save_log:
     writer.close()
 
+
 def divide_chunks(l, n):
     for i in range(0, len(l), n):
-        yield l[i:i + n]
+        yield l[i : i + n]
 
-with open('DQN/training_logs/reward_statistics.csv', 'w', newline='') as file:
+
+with open("DQN/training_logs/reward_statistics.csv", "w", newline="") as file:
     writer = csv.writer(file)
-    writer.writerow(['Highest Score', 'Standard Deviation', 'Mean'])
+    writer.writerow(["Highest Score", "Standard Deviation", "Mean"])
 
     for chunk in divide_chunks(rewards, 50):
         highest_score = max(chunk)
@@ -247,8 +249,9 @@ print(f"Time training: {str(time.time() - start_time)} seconds")
 print(f"Last episode: {str(episode)}")
 print(f"Training Highscore: {str(highscore)}")
 print(f"'tetris-clear' highscore: {str(max(tetris_clear_list))}")
-print(f'Reward mean: {np.mean(rewards)}')
+print(f"Reward mean: {np.mean(rewards)}")
 print(f"Reward sd: {np.std(rewards)}")
 # Close pygame
 
-pygame.quit()
+if env.render_enabled:
+    pygame.quit()
