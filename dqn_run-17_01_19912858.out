@@ -1626,3 +1626,60 @@ Round Highscore: 2602
 Training Highscore: 3000007
 Round 'tetris-clear' highscore:1
 'tetris-clear' highscore:1135
+model_save
+------------------------------
+Running episode 2030
+Epsilon:  0.000500500000017473
+Mean reward:  533459.5
+Round Highscore: 3000778
+Training Highscore: 3000778
+Round 'tetris-clear' highscore:1354
+'tetris-clear' highscore:1354
+------------------------------
+Running episode 2040
+Epsilon:  0.000500500000017473
+Mean reward:  380.6
+Round Highscore: 414
+Training Highscore: 3000778
+Round 'tetris-clear' highscore:0
+'tetris-clear' highscore:1354
+------------------------------
+Running episode 2050
+Epsilon:  0.000500500000017473
+Mean reward:  413.3
+Round Highscore: 909
+Training Highscore: 3000778
+Round 'tetris-clear' highscore:0
+'tetris-clear' highscore:1354
+------------------------------
+Running episode 2060
+Epsilon:  0.000500500000017473
+Mean reward:  517.5
+Round Highscore: 1081
+Training Highscore: 3000778
+Round 'tetris-clear' highscore:0
+'tetris-clear' highscore:1354
+------------------------------
+Running episode 2070
+Epsilon:  0.000500500000017473
+Mean reward:  395.3
+Round Highscore: 418
+Training Highscore: 3000778
+Round 'tetris-clear' highscore:0
+'tetris-clear' highscore:1354
+------------------------------
+Running episode 2080
+Epsilon:  0.000500500000017473
+Mean reward:  499.3
+Round Highscore: 1719
+Training Highscore: 3000778
+Round 'tetris-clear' highscore:0
+'tetris-clear' highscore:1354
+------------------------------
+Running episode 2090
+Epsilon:  0.000500500000017473
+Mean reward:  14084.8
+Round Highscore: 118150
+Training Highscore: 3000778
+Round 'tetris-clear' highscore:62
+'tetris-clear' highscore:1354
