@@ -28,6 +28,7 @@ seed = 12
 env = Tetris(10, 20, seed)
 
 # Initializing pygame window
+env.render_enabled = False
 if env.render_enabled:
     pygame.init()
     width, height = 250, 625
@@ -36,8 +37,8 @@ if env.render_enabled:
 
 # Initialize training variables
 max_episode = 2_500
-max_reward = 10_000_000
-reward_save = 100_000
+max_reward = 3_000_000
+reward_save = 1_000_000
 max_time_duration = sys.maxsize
 
 # Log parameters
@@ -48,9 +49,9 @@ framerate = sys.maxsize
 run_hold = True
 
 save_log = True
-log_name = "DQN_server_2_500_16-01"
+log_name = "DQN_server_2_500_17-01"
 save_model = True
-model_name = "DQN_server_2_500_16-01"
+model_name = "DQN_server_2_500_17-01"
 exit_program = False
 run_hold = True
 
@@ -127,7 +128,7 @@ for episode in range(max_episode):
 
     while not done and total_reward < max_reward:
         # Key controls for the training session
-        if env.get_render():
+        if env.render_enabled:
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_r:
