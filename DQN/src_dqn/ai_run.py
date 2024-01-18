@@ -24,7 +24,7 @@ width, height = 250, 625
 screen = pygame.display.set_mode((width, height))
 
 # model_name = "DQN_server_25_000_3"
-model_name = "DQN_server_2_500_16-01"
+model_name = "DQN_server_2_000_final"
 model_path = f"DQN/models/{model_name}.pt"
 
 model = QNetwork(env.state_size)
@@ -164,8 +164,8 @@ for episode in range(max_episodes):
         )
 
     with open("DQN/evaluation/reward_statistics.csv", "a", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerow([total_reward])
+        writer_csv = csv.writer(file)
+        writer_csv.writerow([total_reward])
 
 if log_evaluation:
     writer.close()
