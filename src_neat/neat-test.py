@@ -35,7 +35,7 @@ for i in range(times_to_repeat):
     print(i+1)
 
 
-    with open ("experiment_data/study/NEAT_study_data.csv", "w", newline="") as file:
+    with open ("experiment_data/study/NEAT_study_data_lines_cleared.csv", "w", newline="") as file:
         writer = csv.writer(file)
         for score in scores:
             writer.writerow([score])
