@@ -1,6 +1,6 @@
-#BSUB -J dqn_run-17-01_2_
-#BSUB -o dqn_run-17_01_2_%J.out
-#BSUB -e dqn_run-17-01_2_%J.err
+#BSUB -J dqn_eval_1_
+#BSUB -o dqn_eval_1_%J.out
+#BSUB -e dqn_eval_1_%J.err
 #BSUB -n 4
 #BSUB -q gpuv100
 #BSUB -gpu "num=1:mode=exclusive_process"
@@ -17,4 +17,4 @@ module load python3/3.11.3
 module load cuda/11.8
 
 source tetris_temp_venv/bin/activate
-python3 -u ./DQN/src_dqn/train_dqn.py
+python3 -u ./DQN/src_dqn/ai_run.py

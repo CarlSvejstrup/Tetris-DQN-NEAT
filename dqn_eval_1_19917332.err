@@ -1,0 +1,13 @@
+Loaded dependency [python3/3.11.3]: gcc/12.2.0-binutils-2.39
+Loaded dependency [python3/3.11.3]: sqlite3/3.40.1
+Loaded module: python3/3.11.3
+
+Loading python3/3.11.3
+  Loading requirement: gcc/12.2.0-binutils-2.39 sqlite3/3.40.1
+Loaded module: cuda/11.8
+Traceback (most recent call last):
+  File "/zhome/36/0/204785/Tetris-DQN-NEAT/./DQN/src_dqn/ai_run.py", line 139, in <module>
+    logging()
+  File "/zhome/36/0/204785/Tetris-DQN-NEAT/./DQN/src_dqn/ai_run.py", line 60, in logging
+    writer.add_scalar("Tetris clears:", env.tetris_amount, episode)
+AttributeError: '_csv.writer' object has no attribute 'add_scalar'
