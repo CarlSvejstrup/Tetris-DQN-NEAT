@@ -14,7 +14,7 @@ import pygame
 import torch
 from torch.utils.tensorboard import SummaryWriter
 
-seed = 2461
+seed = 1
 env = Tetris(10, 20, seed)
 agent = Agent(env.state_size, seed=seed)
 
@@ -33,7 +33,7 @@ model.load_state_dict(
 )  # Modified line
 model.eval()
 
-max_episodes = 40
+max_episodes = 125
 episodes = []
 rewards = []
 tetris_clear_list = []
@@ -43,7 +43,7 @@ highscore = 0
 exit_program = False
 
 log_evaluation = True
-log_name = "DQN_model_2_000_final"
+log_name = "DQN_model_2_000_log_125"
 framerate = sys.maxsize
 run_hold = True
 print_interval = 1
@@ -163,9 +163,11 @@ for episode in range(max_episodes):
             f"episodetime: {timer(start_time, end_time)[0]} minutes, {timer(start_time, end_time)[1]} seconds"
         )
 
-    with open("DQN/evaluation/reward_statistics.csv", "a", newline="") as file:
+    with open("DQN/evaluation/eval_stat_125.csv", "a", newline="") as file:
         writer_csv = csv.writer(file)
         writer_csv.writerow([total_reward])
+
+    env.seed += 1
 
 if log_evaluation:
     writer.close()
