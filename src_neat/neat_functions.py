@@ -85,9 +85,9 @@ def eval_genomes(genomes, config):
         pygame.quit()
 
 
-def test_ai(winner_net, out, test_draw):
+def test_ai(winner_net, out, test_draw, seed = random.randint(1,1_000_000)):
 
-    tetris = Tetris_game()
+    tetris = Tetris_game(seed)
     score = 0
     if test_draw and out is None:
         pygame.init()
