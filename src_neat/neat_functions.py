@@ -112,7 +112,7 @@ def test_ai(winner_net, out, test_draw, seed = random.randint(1,1_000_000)):
                 out.release()
             elif test_draw:
                 pygame.quit()
-            return score
+            return tetris.
 
 
 def run_neat(config, seed=random.randint(1, 1_000_000)):
