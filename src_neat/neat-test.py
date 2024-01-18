@@ -4,7 +4,7 @@ make_video = False
 draw = False
 
 out = None
-times_to_repeat = 40
+times_to_repeat = 125
 scores = np.zeros(times_to_repeat)
 height = 610
 width = 250
@@ -31,10 +31,11 @@ for i in range(times_to_repeat):
         # Create a VideoWriter object
         out = cv.VideoWriter(output_file, fourcc, fps, (width, height))  # Replace width and height with the size of your frames
 
-    scores[i] = test_ai(winner_net, out, draw)
+    scores[i] = test_ai(winner_net, out, draw, seed=i+1)
+    print(i+1)
 
 
-    with open ("NEAT_testing_results.csv", "w", newline="") as file:
+    with open ("experiment_data/study/NEAT_study_data.csv", "w", newline="") as file:
         writer = csv.writer(file)
         for score in scores:
             writer.writerow([score])
