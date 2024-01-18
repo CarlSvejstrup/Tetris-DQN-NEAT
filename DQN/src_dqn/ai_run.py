@@ -43,7 +43,7 @@ highscore = 0
 exit_program = False
 
 log_evaluation = True
-log_name = "DQN_model_2_000_log_125"
+log_name = "DQN_test"
 framerate = sys.maxsize
 run_hold = True
 print_interval = 1
@@ -84,6 +84,7 @@ for episode in range(max_episodes):
     env.tetris_amount = 0
     start_time = time.time()
     steps = 0
+    env.types_of_clears = {"1": 0, "2": 0, "3": 0, "4": 0}
 
     while not done and steps < max_steps:
         for event in pygame.event.get():
@@ -130,6 +131,7 @@ for episode in range(max_episodes):
             print(f"Steps: {str(steps)}")
             print(f"Current Reward: {str(total_reward)}")
             print(f"Number of tetris: {str(env.tetris_clear)}")
+            print(f"Clear list: {env.types_of_clears}")
 
         steps += 1
 
@@ -163,9 +165,17 @@ for episode in range(max_episodes):
             f"episodetime: {timer(start_time, end_time)[0]} minutes, {timer(start_time, end_time)[1]} seconds"
         )
 
-    with open("DQN/evaluation/eval_stat_125.csv", "a", newline="") as file:
+    with open("DQN/evaluation/eval_test.csv", "a", newline="") as file:
         writer_csv = csv.writer(file)
-        writer_csv.writerow([total_reward])
+        writer_csv.writerow(
+            [
+                total_reward,
+                env.types_of_clears["1"],
+                env.types_of_clears["2"],
+                env.types_of_clears["3"],
+                env.types_of_clears["4"],
+            ]
+        )
 
     env.seed += 1
 

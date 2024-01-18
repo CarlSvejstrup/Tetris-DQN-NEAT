@@ -19,6 +19,7 @@ green = (156, 204, 101)
 black = (0, 0, 0)
 white = (255, 255, 255)
 
+
 def rotated(shape):
     return [(-j, i) for i, j in shape]
 
@@ -68,6 +69,7 @@ class Tetris:
         self.anchor = None
         self.shape = None
         self.reward_system = 1
+        self.types_of_clears = {"1": 0, "2": 0, "3": 0, "4": 0}
         self.tetris_clear = 0
 
         # Holding a piece
@@ -131,12 +133,16 @@ class Tetris:
 
         if self.reward_system == 1:
             if cleared_lines == 1:
+                self.types_of_clears['1'] += 1
                 return 40 + self.soft_count
             elif cleared_lines == 2:
+                self.types_of_clears['2'] += 1
                 return 100 + self.soft_count
             elif cleared_lines == 3:
+                self.types_of_clears['3'] += 1
                 return 300 + self.soft_count
             elif cleared_lines == 4:
+                self.types_of_clears['4'] += 1
                 self.tetris_clear += 1
                 return 1200 + self.soft_count
             return self.soft_count
@@ -384,7 +390,10 @@ class Tetris:
     def render_save_video(self, score, model_name):
         self._set_piece(True, self.shape, self.anchor)
         board = self.board[:].T
-        board = [[green if board[i][j] else black for j in range(self.width)] for i in range(self.height)]
+        board = [
+            [green if board[i][j] else black for j in range(self.width)]
+            for i in range(self.height)
+        ]
         self._set_piece(False, self.shape, self.anchor)
 
         img = np.array(board).reshape((self.height, self.width, 3)).astype(np.uint8)
@@ -398,9 +407,36 @@ class Tetris:
 
         # Add extra spaces on the top to display game score
         extra_spaces = np.zeros((110, self.width * 25, 3))
-        cv.putText(extra_spaces, "Score: " + str(score), (15, 30), cv.FONT_HERSHEY_SIMPLEX, 0.5, white, 1, cv.LINE_AA)
-        cv.putText(extra_spaces, f"{model_name}", (15, 60), cv.FONT_HERSHEY_SIMPLEX, 1, white, 2, cv.LINE_AA)
-        cv.putText(extra_spaces,"Hold: " + self.get_shape_letter(self.held_shape),(15, 90),cv.FONT_HERSHEY_SIMPLEX,1,white,2,cv.LINE_AA,)
+        cv.putText(
+            extra_spaces,
+            "Score: " + str(score),
+            (15, 30),
+            cv.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            white,
+            1,
+            cv.LINE_AA,
+        )
+        cv.putText(
+            extra_spaces,
+            f"{model_name}",
+            (15, 60),
+            cv.FONT_HERSHEY_SIMPLEX,
+            1,
+            white,
+            2,
+            cv.LINE_AA,
+        )
+        cv.putText(
+            extra_spaces,
+            "Hold: " + self.get_shape_letter(self.held_shape),
+            (15, 90),
+            cv.FONT_HERSHEY_SIMPLEX,
+            1,
+            white,
+            2,
+            cv.LINE_AA,
+        )
         # Add extra spaces to the board image
         img = np.concatenate((extra_spaces, img), axis=0)
 
