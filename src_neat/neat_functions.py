@@ -21,8 +21,9 @@ from tetris_engine import Tetris
 
 tetris = None
 
+
 class Tetris_game:
-    def __init__(self, seed=random.randint(1,1_000_000)) -> None:
+    def __init__(self, seed=random.randint(1, 1_000_000)) -> None:
         self.game = Tetris(10, 20, seed)
 
     def train_ai(self, genome, config) -> None:
@@ -75,18 +76,19 @@ def eval_genomes(genomes, config):
     results = np.zeros(50)
     for i, (genome_id, genome) in enumerate(genomes):
         global tetris
-        results[i-1] = tetris.train_ai(genome=genome, config=config)
-    
-    with open ("NEAT_results.csv", "a", newline="") as file:
-        writer = csv.DictWriter(file, fieldnames = ["mean", "std", "max"])
-        writer.writerow({"mean": np.mean(results), "std": np.std(results), "max": results.max()})
+        results[i - 1] = tetris.train_ai(genome=genome, config=config)
+
+    with open("NEAT_results.csv", "a", newline="") as file:
+        writer = csv.DictWriter(file, fieldnames=["mean", "std", "max"])
+        writer.writerow(
+            {"mean": np.mean(results), "std": np.std(results), "max": results.max()}
+        )
 
     if draw:
         pygame.quit()
 
 
-def test_ai(winner_net, out, test_draw, seed = random.randint(1,1_000_000)):
-
+def test_ai(winner_net, out, test_draw, seed=random.randint(1, 1_000_000)):
     tetris = Tetris_game(seed)
     score = 0
     if test_draw and out is None:
@@ -117,17 +119,21 @@ def test_ai(winner_net, out, test_draw, seed = random.randint(1,1_000_000)):
 
 def run_neat(config, seed=random.randint(1, 1_000_000)):
     random.seed(seed)
-    p = neat.Checkpointer.restore_checkpoint('src_neat/checkpoint_neat/neat-checkpoint-37')
-    #p = neat.Population(config)
+    p = neat.Checkpointer.restore_checkpoint(
+        "src_neat/checkpoint_neat/neat-checkpoint-37"
+    )
+    # p = neat.Population(config)
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
     p.add_reporter(
-        neat.Checkpointer(1, filename_prefix="src_neat/checkpoint_neat/neat-checkpoint-")
+        neat.Checkpointer(
+            1, filename_prefix="src_neat/checkpoint_neat/neat-checkpoint-"
         )
+    )
     global tetris
     tetris = Tetris_game(12)
 
     winner = p.run(eval_genomes, 3)
-    with open("neat_best.pickle", "wb") as f:
+    with open("src_neat/neat_best.pickle", "wb") as f:
         pickle.dump(winner, f)
