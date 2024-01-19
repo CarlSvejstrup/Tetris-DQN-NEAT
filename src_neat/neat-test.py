@@ -1,4 +1,5 @@
 from neat_functions import *
+import visualize
 import csv
 make_video = False
 draw = False
@@ -20,8 +21,15 @@ config = neat.Config(neat.DefaultGenome,
                      config_path)
 with open("neat_best.pickle", "rb") as f:
     winner = pickle.load(f)
+
+node_names = {-4: 'cleared_lines', -3: 'holes', -2: 'bumpiness', -1: 'height', 0: 'score'}
 winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
-#neat.visualize.draw_net(winner, view=True, filename="xor2-all.gv")
+visualize.draw_net(config, winner, True, node_names=node_names)
+
+visualize.plot_stats(stats, ylog=False, view=True)
+
+visualize.plot_species(stats, view=True)
+exit()
 for i in range(times_to_repeat):
     if make_video:
         # Set the video output settings
