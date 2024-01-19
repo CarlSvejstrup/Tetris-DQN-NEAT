@@ -1,5 +1,8 @@
-torch
-numpy
+python 
+torch 
 pygame
+python-neat
+matplotlib
+graphviz
+numpy
 tensorboard
-neat-python
