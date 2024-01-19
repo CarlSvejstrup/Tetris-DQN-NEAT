@@ -44,7 +44,7 @@ exit_program = False
 
 log_evaluation = True
 log_name = "DQN_test"
-framerate = sys.maxsize
+framerate = 10
 run_hold = True
 print_interval = 1
 steps = 0
