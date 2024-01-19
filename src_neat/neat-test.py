@@ -6,6 +6,7 @@ draw = False
 out = None
 times_to_repeat = 125
 scores = np.zeros(times_to_repeat)
+types_of_clears = []
 height = 610
 width = 250
 
@@ -30,12 +31,18 @@ for i in range(times_to_repeat):
 
         # Create a VideoWriter object
         out = cv.VideoWriter(output_file, fourcc, fps, (width, height))  # Replace width and height with the size of your frames
-
-    scores[i] = test_ai(winner_net, out, draw, seed=i+1)
-    print(i+1)
+    score, type_cleared = test_ai(winner_net, out, draw, seed=i+1)
+    scores[i] = score
+    types_of_clears.append(type_cleared)
+    print(type_cleared)
 
 
     with open ("experiment_data/study/NEAT_study_data_lines_cleared.csv", "w", newline="") as file:
         writer = csv.writer(file)
-        for score in scores:
-            writer.writerow([score])
+        for clears in types_of_clears:
+            writer.writerow(
+                [clears["1"],
+                clears["2"],
+                clears["3"],
+                clears["4"]]
+            )
