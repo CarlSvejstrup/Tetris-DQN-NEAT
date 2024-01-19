@@ -28,11 +28,10 @@ seed = 12
 env = Tetris(10, 20, seed)
 
 # Initializing pygame window
-env.render_enabled = False
-if env.render_enabled:
-    pygame.init()
-    width, height = 250, 625
-    screen = pygame.display.set_mode((width, height))
+
+pygame.init()
+width, height = 250, 625
+screen = pygame.display.set_mode((width, height))
 
 
 # Initialize training variables
@@ -45,12 +44,12 @@ max_time_duration = sys.maxsize
 print_interval = 10
 interval_reward = []
 
-framerate = sys.maxsize
+framerate = 20
 run_hold = True
 
-save_log = True
+save_log = False
 log_name = "DQN_server_2_500_17-01_2"
-save_model = True
+save_model = False
 model_name = "DQN_server_2_500_17-0_2"
 exit_program = False
 run_hold = True
@@ -128,15 +127,15 @@ for episode in range(max_episode):
 
     while not done and total_reward < max_reward:
         # Key controls for the training session
-        if env.render_enabled:
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_r:
-                        env.toggle_render()  # Toggle render state with 'r'
-                    if event.key == pygame.K_q:
-                        exit_program = True
-                    if event.type == pygame.QUIT:
-                        exit_program = True
+       
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+                    env.toggle_render()  # Toggle render state with 'r'
+                if event.key == pygame.K_q:
+                    exit_program = True
+                if event.type == pygame.QUIT:
+                    exit_program = True
 
         # Render game
         if env.render_enabled:
@@ -254,5 +253,5 @@ print(f"Reward mean: {np.mean(rewards)}")
 print(f"Reward sd: {np.std(rewards)}")
 # Close pygame
 
-if env.render_enabled:
-    pygame.quit()
+
+pygame.quit()
