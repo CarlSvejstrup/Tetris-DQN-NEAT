@@ -1,47 +1,78 @@
-This GitHub contains the code for both DQN and NEAT models, implemented in the game of Tetris.
+# Tetris-DQN-NEAT 
 
-The models simulate all possible positions based on the current board, and a given tetromino (Tetris piece). For each position, a state vector is calculated based on the listed heuristics below:
+This repository contains the code for both Deep Q-Learning (DQN) and NeuroEvolution of Augmenting Topologies (NEAT) models, implemented in the game of Tetris.
 
-## Features
-1. Cleared Lines
-2. Bumpiness (Sum of height difference between each column)
-3. Holes (Space with block on top of it)
-4. Sum of heights
+## Overview
 
-## Reward
-The rewards for the agents can be tweaked to the prefered system:
-* soft drops = difference between initial height position to final placement height
+This codebase is part of the projects under the course **02461: Introduction to Intelligent Systems** at the Technical University of Denmark (DTU). The project demonstrates the application of reinforcement learning and evolutionary algorithms to optimize Tetris gameplay.
 
-### Reward system 1 (NES Tetris)
+The models simulate all possible positions for the current game board and a given tetromino (Tetris piece). For each position, a state vector is computed based on the heuristics described below.
 
-* 0 lines cleared = number of soft drops
-* 1 lines cleared = 40 + number of soft drops
-* 2 lines cleared = 100 + number of soft drops
-* 3 lines cleared = 300 + number of soft drops
-* 4 lines cleared = 1200 + number of soft drops
-* temination = -25
-  
-(difference between initial height position to final placement height)
+## Heuristics
 
+The state vector for each possible position is determined based on these features:
+1. Cleared Lines: The number of lines cleared by placing the tetromino.
+2. Bumpiness: The sum of height differences between adjacent columns.
+3. Holes: Empty spaces with blocks above them on the board.
+4. Total Height: The sum of the column heights on the board.
 
+## Reward Systems
 
-### Reward system 2
-* $(cleared Lines^2) \cdot board Width + number Of Soft Drops$
-* termination = -5
+The rewards for the agents can be adjusted to fit the task. Below are the implemented reward systems:
 
-### Reward system 2
-* $(cleared Lines^3) \cdot Board Width + number Of Soft Drops$
-* termination = -5
+### Reward System 1 (NES Tetris-inspired)
+Rewards:
+* Soft Drops: Number of rows descended by the tetromino (initial height minus final height).
+* Scoring:
+  * 0 lines cleared = Number of soft drops.
+  * 1 line cleared = 40 + Number of soft drops.
+  * 2 lines cleared = 100 + Number of soft drops.
+  * 3 lines cleared = 300 + Number of soft drops.
+  * 4 lines cleared = 1200 + Number of soft drops.
+  * Game termination = -25.
+
+### Reward System 2
+Reward formulation:
+* \( (Cleared \; Lines)^2 \times Board \; Width + Number \; of \; Soft \; Drops \)
+* Game termination = -5.
+
+### Reward System 3
+Reward formulation:
+* \( (Cleared \; Lines)^3 \times Board \; Width + Number \; of \; Soft \; Drops \)
+* Game termination = -5.
 
 ## Prerequisites
-* python 3.8
-* pyTorch 2.0
-* pygame
-* python-neat
-* matplotlib
-* graphviz
-* numpy
-* tensorboard
+Before running the code, ensure that the following dependencies are installed:
+- Python 3.8
+- PyTorch 2.0
+- Pygame
+- Python-NEAT
+- Matplotlib
+- Graphviz
+- NumPy
+- TensorBoard
 
-To start the training, simply run neat_main and train_dqn
- 
+You can install the required libraries using `pip`:
+```bash
+pip install pygame neat-python matplotlib graphviz numpy torch tensorboard
+```
+
+## Usage
+
+To start the training process for either model, execute the following scripts:
+
+- For NEAT, run:
+  ```bash
+  python neat_main.py
+  ```
+
+- For DQN, run:
+  ```bash
+  python train_dqn.py
+  ```
+
+For further instructions and code explanations, refer to the corresponding files.
+
+---
+
+This project exemplifies the use of reinforcement learning (DQN) and neuro-evolution (NEAT) to tackle decision-making and optimization problems within the realm of intelligent systems.
