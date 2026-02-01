@@ -1,78 +1,54 @@
-# Tetris-DQN-NEAT 
+# Tetris Autonomous Agents: DQN & NEAT
 
-This repository contains the code for both Deep Q-Learning (DQN) and NeuroEvolution of Augmenting Topologies (NEAT) models, implemented in the game of Tetris.
+This repository contains the implementation of two distinct artificial intelligence approaches—**Deep Q-Networks (DQN)** and **NeuroEvolution of Augmenting Topologies (NEAT)**—designed to master the game of Tetris. 
 
-## Overview
+Developed as part of the *Introduction to Intelligent Systems* (02461) course at the Technical University of Denmark (DTU), this project explores the comparative efficacy of reinforcement learning versus evolutionary strategies in dynamic environments.
 
-This codebase is part of the projects under the course **02461: Introduction to Intelligent Systems** at the Technical University of Denmark (DTU). The project demonstrates the application of reinforcement learning and evolutionary algorithms to optimize Tetris gameplay.
+## 🧠 Methodology
 
-The models simulate all possible positions for the current game board and a given tetromino (Tetris piece). For each position, a state vector is computed based on the heuristics described below.
+The agents do not rely on raw pixel input. Instead, the game state is abstracted into a lower-dimensional feature vector to accelerate convergence.
 
-## Heuristics
+### State Space Representation
+The agents evaluate the board based on four critical heuristics:
+1.  **Lines Cleared**: The immediate reward signal for completing rows.
+2.  **Bumpiness**: The sum of absolute height differences between adjacent columns (a measure of surface roughness).
+3.  **Holes**: The count of empty cells buried under filled cells (indicating structural inefficiency).
+4.  **Aggregate Height**: The sum of all column heights.
 
-The state vector for each possible position is determined based on these features:
-1. Cleared Lines: The number of lines cleared by placing the tetromino.
-2. Bumpiness: The sum of height differences between adjacent columns.
-3. Holes: Empty spaces with blocks above them on the board.
-4. Total Height: The sum of the column heights on the board.
+### Algorithms
+* **Deep Q-Network (DQN)**: A reinforcement learning agent that approximates the Q-value function to predict the utility of specific actions (rotations/placements) given the current board state.
+* **NEAT (NeuroEvolution of Augmenting Topologies)**: An evolutionary algorithm that starts with simple neural networks and progressively evolves both their weights and topologies (adding nodes/connections) to optimize fitness.
 
-## Reward Systems
+## ⚖️ Reward Shaping
 
-The rewards for the agents can be adjusted to fit the task. Below are the implemented reward systems:
+Effective training relies on a robust reward function. This implementation supports multiple reward configurations to balance immediate objectives (clearing lines) with long-term survival (minimizing height and holes).
 
-### Reward System 1 (NES Tetris-inspired)
-Rewards:
-* Soft Drops: Number of rows descended by the tetromino (initial height minus final height).
-* Scoring:
-  * 0 lines cleared = Number of soft drops.
-  * 1 line cleared = 40 + Number of soft drops.
-  * 2 lines cleared = 100 + Number of soft drops.
-  * 3 lines cleared = 300 + Number of soft drops.
-  * 4 lines cleared = 1200 + Number of soft drops.
-  * Game termination = -25.
+**Primary Configuration (NES-Style):**
+* **Survival**: Points for soft drops (incentivizing faster play).
+* **Line Clears**: Exponential scaling based on lines cleared at once (40, 100, 300, 1200 points).
+* **Penalty**: -25 penalty for game termination.
 
-### Reward System 2
-Reward formulation:
-* \( (Cleared \; Lines)^2 \times Board \; Width + Number \; of \; Soft \; Drops \)
-* Game termination = -5.
+## 🛠 Installation
 
-### Reward System 3
-Reward formulation:
-* \( (Cleared \; Lines)^3 \times Board \; Width + Number \; of \; Soft \; Drops \)
-* Game termination = -5.
+Ensure you have Python 3.8+ installed.
 
-## Prerequisites
-Before running the code, ensure that the following dependencies are installed:
-- Python 3.8
-- PyTorch 2.0
-- Pygame
-- Python-NEAT
-- Matplotlib
-- Graphviz
-- NumPy
-- TensorBoard
+1.  **Clone the repository:**
+    ```bash
+    git clone [https://github.com/CarlSvejstrup/Tetris-DQN-NEAT.git](https://github.com/CarlSvejstrup/Tetris-DQN-NEAT.git)
+    cd Tetris-DQN-NEAT
+    ```
 
-You can install the required libraries using `pip`:
+2.  **Install dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *Dependencies include: `torch`, `pygame`, `neat-python`, `numpy`, `matplotlib`, `graphviz`, and `tensorboard`.*
+
+## 🚀 Usage
+
+The project is structured with separate entry points for training the two different model architectures.
+
+### Training the NEAT Agent
+To initialize the population and begin the evolutionary process:
 ```bash
-pip install pygame neat-python matplotlib graphviz numpy torch tensorboard
-```
-
-## Usage
-
-To start the training process for either model, execute the following scripts:
-
-- For NEAT, run:
-  ```bash
-  python neat_main.py
-  ```
-
-- For DQN, run:
-  ```bash
-  python train_dqn.py
-  ```
-
-For further instructions and code explanations, refer to the corresponding files.
-
----
-
-This project exemplifies the use of reinforcement learning (DQN) and neuro-evolution (NEAT) to tackle decision-making and optimization problems within the realm of intelligent systems.
+python neat_main.py
